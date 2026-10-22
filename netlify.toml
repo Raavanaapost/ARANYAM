@@ -10,3 +10,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Uploaded deploys don't always get the Next.js runtime added automatically;
+# without it the .next folder is published as static files and every page 404s.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
