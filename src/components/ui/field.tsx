@@ -25,7 +25,12 @@ export function Field({ id, label, hint, error, optionalLabel, children, classNa
     <div className={cn("space-y-1.5", className)}>
       <label htmlFor={id} className="block font-semibold text-ink">
         {label}
-        {optionalLabel ? <span className="ml-1.5 text-sm font-normal text-muted">({optionalLabel})</span> : null}
+        {optionalLabel ? (
+          <>
+            {" "}
+            <span className="ml-0.5 text-sm font-normal text-muted">({optionalLabel})</span>
+          </>
+        ) : null}
       </label>
       {children}
       {hint ? (

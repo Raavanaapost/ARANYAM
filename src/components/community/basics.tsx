@@ -16,6 +16,7 @@ import type { AuthorView } from "@/lib/services/common";
 export function RelativeTime({ date, locale, t }: { date: Date; locale: Locale; t: Dictionary }) {
   return (
     <time dateTime={date.toISOString()} title={formatDateTime(date, locale, env.timezone)}>
+      {/* eslint-disable-next-line react-hooks/purity -- a Server Component renders once per request */}
       {formatRelative(date, locale, Date.now(), t.time.justNow)}
     </time>
   );

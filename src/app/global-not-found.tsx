@@ -21,10 +21,13 @@ export default function GlobalNotFound() {
           <p lang="ta" className="mt-1 text-lg text-muted">
             அந்தப் பக்கம் கிடைக்கவில்லை
           </p>
+          {/* This page has its own document, so plain links that load a fresh page are right here. */}
           <div className="mt-8 flex justify-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/en" className="rounded-full bg-primary px-5 py-2.5 font-semibold text-on-primary">
               Home
             </a>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/ta"
               lang="ta"

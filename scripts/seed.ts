@@ -35,6 +35,20 @@ import { fromZonedParts, toZonedParts } from "@/lib/timezone";
 export const DEMO_PASSWORD = "aranyam-demo-2026";
 
 const reset = process.argv.includes("--reset");
+
+// The demo accounts share a published password, so they must never reach a
+// community that real families can visit.
+const appUrl = process.env.APP_URL || "http://localhost:3000";
+const isLocal = ["localhost", "127.0.0.1", "[::1]"].includes(new URL(appUrl).hostname);
+if ((!isLocal || process.env.NODE_ENV === "production") && !process.argv.includes("--not-public")) {
+  console.error(
+    `Refusing to add demo accounts: APP_URL is ${appUrl}${process.env.NODE_ENV === "production" ? " and NODE_ENV=production" : ""}.\n` +
+      "Everyone can read the demo password, so anyone could log in as the demo admin.\n" +
+      "If this really is a private test copy, run again with --not-public.",
+  );
+  process.exit(1);
+}
+
 const context = getDatabaseContext();
 const { db } = context;
 await runMigrations(context);

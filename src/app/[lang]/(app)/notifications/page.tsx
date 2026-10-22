@@ -94,7 +94,14 @@ async function Notifications() {
                       <RelativeTime date={item.createdAt} locale={locale} t={t} />
                     </span>
                   </span>
-                  {unread ? <span className="mt-2 size-2.5 shrink-0 rounded-full bg-heart" aria-label={t.common.new} /> : null}
+                  {unread ? (
+                    <span
+                      role="img"
+                      aria-label={t.common.new}
+                      data-testid="notification-unread"
+                      className="mt-2 size-2.5 shrink-0 rounded-full bg-heart"
+                    />
+                  ) : null}
                 </>
               );
               return (

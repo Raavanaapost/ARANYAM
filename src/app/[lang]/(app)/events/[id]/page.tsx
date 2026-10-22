@@ -51,6 +51,7 @@ async function Event({ params }: Pick<PageProps<"/[lang]/events/[id]">, "params"
   const { id } = await params;
   const event = await getEvent(viewer, id);
   if (!event) notFound();
+  // eslint-disable-next-line react-hooks/purity -- a Server Component renders once per request
   const isOver = (event.endsAt ?? event.startsAt).getTime() < Date.now();
   const shared = { event, locale, t, isOver };
 
