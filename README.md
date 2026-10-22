@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aranyam · ஆரண்யம்
 
-## Getting Started
+A safe grove for Tamil families raising children with special needs.
+சிறப்புத் தேவையுள்ள குழந்தைகளை வளர்க்கும் தமிழ்க் குடும்பங்களுக்கான பாதுகாப்பான சோலை.
 
-First, run the development server:
+Many families keep their child's needs to themselves and know only a few others who understand. Aranyam is a private, members-only community where they can share, learn and meet, in Tamil or English, without being seen by the wider world.
+
+## What families can do
+
+- **Share** thoughts, questions, celebrations and tips in the feed, with Support, Hug and Me too reactions and kind replies. Anything can be posted without a name.
+- **Write blogs** in simple Markdown with a preview, keep drafts, and publish with or without a name.
+- **Read news** about schemes, rights and therapies. Moderators post news and decide which items are public.
+- **Meet at events**, online or in person. The exact address or meeting link is shown only to families who respond, and every event has a calendar file.
+- **Join groups** by city, need or interest. A group is open, private (ask to join) or hidden (invite link only).
+- **Invite** a family they trust with a personal link that skips the waiting list.
+- **Stay in touch** with notifications, and switch between Tamil and English at any time. Emails arrive in each family's own language.
+
+Moderators welcome new families in, handle reports, pause accounts and remove harmful content. Everything they do is written to an activity log.
+
+## Privacy by design
+
+- Nothing is public except the welcome pages and the news that moderators mark as public. Search engines are asked not to index anything else.
+- New families see nothing until they confirm their email and a moderator welcomes them in.
+- Anonymous posts never show their author, not even in notifications. A moderator can reveal an author only from a report, and that is logged.
+- Hidden groups are invisible to everyone outside them. Event addresses are shared only with families who respond.
+- No ads, no tracking, and no third-party scripts, fonts or images. A strict content security policy enforces it.
+- Families can download everything they have shared, and delete their account with all of it for good.
+- Logging out loads a fresh page, so nothing from the session stays in the browser's memory.
+
+## Try it on your computer
+
+You need Node.js 22.12 or newer, and nothing else. By default Aranyam uses [PGlite](https://pglite.dev), a full PostgreSQL that runs inside Node and keeps its files in `.data/pglite`.
 
 ```bash
+npm install
+npm run setup   # creates the tables and a small demo community
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. Every demo account uses the password `aranyam-demo-2026`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Email                   | Who                                     |
+| ----------------------- | --------------------------------------- |
+| `meena@aranyam.local`   | Admin                                   |
+| `karthik@aranyam.local` | Moderator                               |
+| `priya@aranyam.local`   | Member who runs a group and an event    |
+| `lakshmi@aranyam.local` | Member who uses Aranyam in Tamil        |
+| `divya@aranyam.local`   | New family waiting for a moderator      |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+During development no email is sent. Read them at http://localhost:3000/en/dev/mailbox instead.
 
-## Learn More
+To start over, run `npm run db:seed -- --reset`, or stop the server and delete `.data/pglite`.
 
-To learn more about Next.js, take a look at the following resources:
+### Using PostgreSQL
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Copy `.env.example` to `.env.local` and set `DATABASE_URL`, for example:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+DATABASE_URL=postgres://aranyam:aranyam@localhost:5432/aranyam
+```
 
-## Deploy on Vercel
+Then run `npm run setup` again. Aranyam is tested with PostgreSQL 16.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Starting a real community
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The demo accounts share a published password, so never add them to a real community. The seed script refuses unless `APP_URL` points at your own computer.
+
+1. Create a PostgreSQL database and set the settings below, in `.env.local` or in your host's environment.
+2. Build and start with `npm run build && npm start`. The tables are created when the server starts. Set `AUTO_MIGRATE=false` if you would rather run `npm run db:migrate` yourself.
+3. Register on the site and confirm your email, then make yourself the first admin with `npm run admin:promote -- you@example.com`. You can also list your email in `ADMIN_EMAILS` before you register.
+4. Serve the site over HTTPS, through a hosting platform, Caddy or nginx.
+
+| Setting                                     | What it does                                                                      |
+| ------------------------------------------- | --------------------------------------------------------------------------------- |
+| `APP_URL`                                   | The public address, used for links in emails                                      |
+| `DATABASE_URL`                              | PostgreSQL connection string                                                      |
+| `SMTP_URL`, `EMAIL_FROM`                    | How to send email, through any SMTP provider                                      |
+| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`        | Keeps forms working across restarts. Make one with `openssl rand -base64 32`      |
+| `TRUST_PROXY`                               | `true` behind a proxy or hosting platform, so rate limits see real addresses      |
+| `REQUIRE_APPROVAL`, `INVITES_SKIP_APPROVAL` | Whether moderators welcome new families in, and whether invite links skip that   |
+| `APP_TIMEZONE`                              | Time zone for events, `Asia/Kolkata` by default                                   |
+
+`.env.example` explains every setting.
+
+## Tests
+
+```bash
+npm test            # unit and privacy tests on a throwaway in-memory database
+npm run test:e2e    # browser tests: joining, login, privacy, posts, events, groups, moderation, Tamil
+npm run lint
+npm run typecheck
+```
+
+The browser tests need Chromium once: `npx playwright install chromium`. They build the app and run it on port 3100 with fresh demo data in `.data/e2e`.
+
+- `E2E_DATABASE_URL=postgres://…` runs them on PostgreSQL instead. **That database is emptied.**
+- `E2E_SKIP_BUILD=1` reuses the last build.
+- `E2E_SERVER=dev` uses the development server.
+
+## How it is built
+
+- [Next.js 16](https://nextjs.org) with React 19, Server Components, Server Actions and TypeScript
+- PostgreSQL through [Drizzle ORM](https://orm.drizzle.team), or PGlite with no setup at all
+- Tailwind CSS 4, with the Tamil fonts Mukta Malar and Baloo Thambi 2 served from the site itself
+- Passwords hashed with scrypt, sessions kept in the database, and rate limits on login and sign-up
+- Vitest and Playwright for tests
+
+```
+src/
+  app/[lang]/(site)   public pages, login and sign-up
+  app/[lang]/(app)    members' area: feed, blogs, news, events, groups, settings, moderation
+  app/api             logout, calendar files, data export, health check
+  components          shared interface pieces
+  i18n                Tamil and English text
+  lib/services        every database query, with the privacy rules
+  lib/actions         form handlers
+  lib/db              schema and connection (migrations live in drizzle/)
+scripts/              migrate, seed and promote an admin
+tests/                unit and browser tests
+```
