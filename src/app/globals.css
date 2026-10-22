@@ -1,26 +1,292 @@
 @import "tailwindcss";
 
+/*
+ * Aranyam design tokens. Colours are CSS variables so the whole app follows the
+ * visitor's light or dark preference without per-component dark styles.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --canvas: #faf7f0;
+  --surface: #ffffff;
+  --sunken: #f3eee3;
+  --line: #e6dfd0;
+  --line-strong: #d6cdb9;
+  --ink: #1d2b25;
+  --muted: #5b6862;
+  --primary: #23634f;
+  --primary-strong: #1a4f3f;
+  --primary-soft: #e2efe8;
+  --on-primary: #ffffff;
+  --accent: #a8630f;
+  --accent-soft: #fbeedb;
+  --heart: #c2463f;
+  --heart-soft: #fbe7e4;
+  --info: #2c6496;
+  --info-soft: #e4eef7;
+  --danger: #b03a2e;
+  --danger-soft: #f9e3df;
+  --warning: #8a5a00;
+  --warning-soft: #fcf1d6;
+  --focus: #2f7d64;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --canvas: #101814;
+    --surface: #17221d;
+    --sunken: #1d2a24;
+    --line: #2a3a33;
+    --line-strong: #394c43;
+    --ink: #e6efe9;
+    --muted: #a3b3ab;
+    --primary: #6cc4a0;
+    --primary-strong: #8bd5b5;
+    --primary-soft: #1e3a30;
+    --on-primary: #0b1511;
+    --accent: #ecb062;
+    --accent-soft: #3a2c17;
+    --heart: #f08b84;
+    --heart-soft: #3f2220;
+    --info: #8dbbe6;
+    --info-soft: #1d2d3d;
+    --danger: #f19a8f;
+    --danger-soft: #3d201c;
+    --warning: #e9c46a;
+    --warning-soft: #3a3016;
+    --focus: #8bd5b5;
+    color-scheme: dark;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-heart: var(--heart);
+  --color-heart-soft: var(--heart-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-focus: var(--focus);
+
+  --font-sans: "Aranyam Figures", "Mukta Malar", "Noto Sans Tamil", "Latha", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Baloo Thambi 2 Variable", "Mukta Malar", ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Mukta Malar draws its digits at about x-height, so dates, times and counts look
+ * shrunken next to the words around them. Body text borrows just the digits from
+ * Baloo Thambi 2, which is already loaded for headings.
+ */
+@font-face {
+  font-family: "Aranyam Figures";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 800;
+  src: url("../../node_modules/@fontsource-variable/baloo-thambi-2/files/baloo-thambi-2-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0030-0039;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: 1.25;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  /* Tamil script needs extra room for vowel signs above and below the line. */
+  :lang(ta) body {
+    line-height: 1.75;
+  }
+
+  :lang(ta) h1,
+  :lang(ta) h2,
+  :lang(ta) h3,
+  :lang(ta) h4 {
+    line-height: 1.4;
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: var(--primary-soft);
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -10rem;
+    z-index: 100;
+    background: var(--surface);
+    color: var(--ink);
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 2px solid var(--focus);
+  }
+
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  /* Rendered blog and news content. */
+  .prose-aranyam {
+    font-size: 1.0625rem;
+    overflow-wrap: anywhere;
+  }
+
+  .prose-aranyam > * + * {
+    margin-top: 1em;
+  }
+
+  .prose-aranyam h1,
+  .prose-aranyam h2 {
+    font-size: 1.4rem;
+    margin-top: 1.6em;
+  }
+
+  .prose-aranyam h3,
+  .prose-aranyam h4 {
+    font-size: 1.15rem;
+    margin-top: 1.4em;
+  }
+
+  .prose-aranyam a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+
+  .prose-aranyam ul {
+    list-style: disc;
+    padding-left: 1.4em;
+  }
+
+  .prose-aranyam ol {
+    list-style: decimal;
+    padding-left: 1.4em;
+  }
+
+  .prose-aranyam li + li {
+    margin-top: 0.35em;
+  }
+
+  .prose-aranyam blockquote {
+    border-left: 4px solid var(--primary-soft);
+    padding-left: 1em;
+    color: var(--muted);
+  }
+
+  .prose-aranyam code {
+    background: var(--sunken);
+    padding: 0.1em 0.35em;
+    border-radius: 0.35em;
+    font-size: 0.92em;
+  }
+
+  .prose-aranyam pre {
+    background: var(--sunken);
+    padding: 1em;
+    border-radius: 0.75em;
+    overflow-x: auto;
+  }
+
+  .prose-aranyam hr {
+    border-color: var(--line);
+  }
+
+  .prose-aranyam table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .prose-aranyam th,
+  .prose-aranyam td {
+    border: 1px solid var(--line);
+    padding: 0.4em 0.6em;
+    text-align: left;
+  }
+
+  /* A soft colour tile from a hue (0-360), used for avatars and group icons. */
+  .hue-tile {
+    background-color: oklch(0.91 0.055 var(--hue, 150));
+    color: oklch(0.37 0.085 var(--hue, 150));
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .hue-tile {
+      background-color: oklch(0.38 0.06 var(--hue, 150));
+      color: oklch(0.93 0.045 var(--hue, 150));
+    }
+  }
+
+  /* Native modal dialogs (the report form). */
+  dialog.sheet {
+    margin: auto;
+    width: min(32rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    border-radius: 1.25rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    padding: 0;
+  }
+
+  dialog.sheet::backdrop {
+    background: rgb(16 24 20 / 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
