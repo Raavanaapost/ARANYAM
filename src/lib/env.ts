@@ -10,6 +10,23 @@ function flag(name: string, fallback: boolean): boolean {
   return value === "1" || value === "true" || value === "yes";
 }
 
+/**
+ * Puts SMTP_PASSWORD into SMTP_URL, so the password can be pasted on its own
+ * instead of being encoded into the URL. Spaces are removed because Gmail shows
+ * app passwords in groups of four.
+ */
+export function smtpUrlWithPassword(smtpUrl: string, password: string): string {
+  const compact = password.replace(/\s+/g, "");
+  if (!smtpUrl || !compact) return smtpUrl;
+  try {
+    const url = new URL(smtpUrl);
+    url.password = encodeURIComponent(compact);
+    return url.toString();
+  } catch {
+    return smtpUrl;
+  }
+}
+
 export type EmailTransport = "smtp" | "dev" | "log";
 
 export const env = {
@@ -37,7 +54,7 @@ export const env = {
     return process.env.APP_TIMEZONE || "Asia/Kolkata";
   },
   get smtpUrl() {
-    return process.env.SMTP_URL ?? "";
+    return smtpUrlWithPassword(process.env.SMTP_URL ?? "", process.env.SMTP_PASSWORD ?? "");
   },
   get emailFrom() {
     return process.env.EMAIL_FROM || "Aranyam <no-reply@localhost>";

@@ -74,7 +74,7 @@ The demo accounts share a published password, so never add them to a real commun
 | ------------------------------------------- | --------------------------------------------------------------------------------- |
 | `APP_URL`                                   | The public address, used for links in emails                                      |
 | `DATABASE_URL`                              | PostgreSQL connection string                                                      |
-| `SMTP_URL`, `EMAIL_FROM`                    | How to send email, through any SMTP provider                                      |
+| `SMTP_URL`, `SMTP_PASSWORD`, `EMAIL_FROM`   | How to send email, through any SMTP provider. `SMTP_PASSWORD` is optional         |
 | `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`        | Keeps forms working across restarts. Make one with `openssl rand -base64 32`      |
 | `TRUST_PROXY`                               | `true` behind a proxy or hosting platform, so rate limits see real addresses      |
 | `REQUIRE_APPROVAL`, `INVITES_SKIP_APPROVAL` | Whether moderators welcome new families in, and whether invite links skip that   |
@@ -87,6 +87,8 @@ The demo accounts share a published password, so never add them to a real commun
 `netlify.toml` holds the build settings. Because `@netlify/database` is installed, Netlify creates a PostgreSQL database for the site and applies `netlify/database/migrations` before each deploy goes live, so leave `DATABASE_URL` unset there.
 
 In the Netlify dashboard, under Project configuration > Environment variables, set `APP_URL`, `ADMIN_EMAILS`, `SMTP_URL` and `EMAIL_FROM`, plus `NETLIFY_NEXT_SKEW_PROTECTION=true` so open pages keep working while a new version goes live. Deploy, then register with the email in `ADMIN_EMAILS` to become the first admin.
+
+To send email through Gmail, turn on 2-Step Verification for the Google account and create an app password at https://myaccount.google.com/apppasswords. Then set `SMTP_URL=smtps://you%40gmail.com@smtp.gmail.com:465`, `SMTP_PASSWORD` to the app password (spaces are fine) and `EMAIL_FROM="Aranyam <you@gmail.com>"`.
 
 `npm run db:generate` copies each new migration into `netlify/database/migrations`. Commit both copies.
 
