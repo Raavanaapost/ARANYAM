@@ -5,9 +5,10 @@ import { after, connection } from "next/server";
 import { cache } from "react";
 import { getLocale } from "@/i18n/server";
 import { isLocale } from "@/i18n/config";
+import { safeNextPath } from "@/lib/params";
 import { readSessionCookie } from "./cookies";
 import { renewSession, validateSessionToken } from "./session";
-import { isAdmin, isModerator, type Viewer } from "./viewer";
+import { isAdmin, isModerator, viewerFromUser, type Viewer } from "./viewer";
 
 export type { Viewer } from "./viewer";
 export { isActiveMember, isAdmin, isModerator } from "./viewer";
@@ -26,20 +27,7 @@ const loadViewer = cache(async (): Promise<Viewer | null> => {
   if (result.shouldRenew || Date.now() - session.lastUsedAt.getTime() > HOUR) {
     after(() => renewSession(session.id));
   }
-  return {
-    id: user.id,
-    sessionId: session.id,
-    email: user.email,
-    displayName: user.displayName,
-    role: user.role,
-    status: user.status,
-    emailVerified: user.emailVerifiedAt !== null,
-    locale: isLocale(user.locale) ? user.locale : "en",
-    avatarHue: user.avatarHue,
-    bio: user.bio,
-    location: user.location,
-    createdAt: user.createdAt,
-  };
+  return viewerFromUser(user, session.id);
 });
 
 /** The current user, or null for visitors. Safe to call many times per request. */
@@ -48,12 +36,6 @@ export async function getViewer(): Promise<Viewer | null> {
 }
 
 /** Only allow redirects back into this site, never to another domain. */
-export function safeNextPath(value: unknown): string | null {
-  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return null;
-  if (value.includes("\\") || value.length > 500) return null;
-  return value;
-}
-
 async function currentPath(): Promise<string | null> {
   return safeNextPath((await headers()).get("x-aranyam-path"));
 }

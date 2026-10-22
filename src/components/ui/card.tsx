@@ -26,9 +26,9 @@ export function SectionTitle({
   as?: "h2" | "h3";
 }) {
   return (
-    <div className={cn("mb-3 flex items-center justify-between gap-3", className)}>
+    <div className={cn("mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1", className)}>
       <Tag className="text-lg text-ink">{children}</Tag>
-      {action}
+      {action ? <div className="shrink-0 whitespace-nowrap">{action}</div> : null}
     </div>
   );
 }

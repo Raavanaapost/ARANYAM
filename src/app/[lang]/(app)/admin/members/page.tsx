@@ -133,10 +133,12 @@ function MemberRow({
           </div>
           <p className="text-sm break-all text-muted">{row.email}</p>
           <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-sm text-muted">
-            <Interpolate
-              template={t.admin.registered}
-              values={{ time: <RelativeTime date={row.createdAt} locale={locale} t={t} /> }}
-            />
+            <span>
+              <Interpolate
+                template={t.admin.registered}
+                values={{ time: <RelativeTime date={row.createdAt} locale={locale} t={t} /> }}
+              />
+            </span>
             {row.location ? (
               <>
                 <Dot />
@@ -216,7 +218,7 @@ function MemberRow({
                 </SubmitButton>
               </ActionForm>
             ) : null}
-            {row.role !== "admin" ? (
+            {row.role === "member" || (row.role === "moderator" && isAdmin(viewer)) ? (
               <ActionForm action={moderateMemberAction} locale={locale} fields={{ ...fields, intent: "suspend" }}>
                 <SubmitButton size="sm" variant="danger-ghost" confirm={t.admin.suspendConfirm}>
                   {t.admin.suspend}
@@ -226,7 +228,7 @@ function MemberRow({
           </>
         ) : null}
 
-        {isAdmin(viewer) && !isSelf && row.status !== "suspended" ? <ResetLink userId={row.id} /> : null}
+        {tab === "all" && isAdmin(viewer) && !isSelf ? <ResetLink userId={row.id} /> : null}
       </div>
     </li>
   );

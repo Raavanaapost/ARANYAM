@@ -298,11 +298,11 @@ export function Composer({
       </fieldset>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-3">
+        <div className="min-w-0 space-y-3">
           {lockedGroup ? (
             <input type="hidden" name="audience" value={lockedGroup.id} />
           ) : groups.length ? (
-            <div className="flex items-center gap-2.5">
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2.5">
               <label htmlFor={`${id}-audience`} className="text-sm font-semibold whitespace-nowrap text-muted">
                 {t.posts.audience}
               </label>

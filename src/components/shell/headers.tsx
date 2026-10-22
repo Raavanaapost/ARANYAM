@@ -38,10 +38,10 @@ function Switcher() {
 function GuestButtons({ locale, t }: { locale: Locale; t: Dictionary }) {
   return (
     <>
-      <ButtonLink href={`/${locale}/login`} variant="ghost" size="sm">
+      <ButtonLink href={`/${locale}/login`} variant="ghost" size="sm" className="whitespace-nowrap">
         {t.nav.login}
       </ButtonLink>
-      <ButtonLink href={`/${locale}/register`} size="sm" className="hidden sm:inline-flex">
+      <ButtonLink href={`/${locale}/register`} size="sm" className="hidden whitespace-nowrap sm:inline-flex">
         {t.nav.join}
       </ButtonLink>
     </>
@@ -53,7 +53,7 @@ async function PublicAuthButtons({ locale, t }: { locale: Locale; t: Dictionary 
   if (!viewer) return <GuestButtons locale={locale} t={t} />;
   return (
     <>
-      <ButtonLink href={`/${locale}/feed`} size="sm" className="hidden sm:inline-flex">
+      <ButtonLink href={`/${locale}/feed`} size="sm" className="hidden whitespace-nowrap sm:inline-flex">
         {t.nav.openApp}
       </ButtonLink>
       <UserMenu viewer={viewer} locale={locale} t={t} />
@@ -223,7 +223,7 @@ export async function AppHeader() {
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:gap-3">
           <Link href={`/${locale}/feed`} className="shrink-0 rounded-xl">
             <Logo {...brand(locale, t)} />
           </Link>

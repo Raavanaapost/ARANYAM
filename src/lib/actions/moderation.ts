@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
-import { safeNextPath } from "@/lib/auth/dal";
+import { safeNextPath } from "@/lib/params";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/auth/rate-limit";
 import { REPORT_REASONS, REPORT_TARGETS, USER_ROLES } from "@/lib/db/schema";
 import type { FormState } from "@/lib/form-state";

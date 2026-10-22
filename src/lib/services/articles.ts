@@ -41,7 +41,10 @@ export type ArticleDetail = ArticleListItem & {
 };
 
 const wordCount = sql<number>`coalesce(array_length(regexp_split_to_array(trim(${articles.body}), '\\s+'), 1), 0)`;
-const commentCount = sql<number>`(select count(*) from ${comments} where ${comments.articleId} = ${articles.id} and ${comments.removedAt} is null)`;
+// Conditions inside these subqueries are nested SQL on purpose: in a select without
+// joins, Drizzle drops table names from columns written directly in the template,
+// and an unqualified "id" would then match the inner table instead of the outer one.
+const commentCount = sql<number>`(select count(*) from ${comments} where ${and(eq(comments.articleId, articles.id), isNull(comments.removedAt))})`;
 
 const listFields = {
   id: articles.id,

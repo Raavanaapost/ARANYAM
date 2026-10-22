@@ -76,7 +76,7 @@ export function TabBarList({ items, pathname }: { items: NavItem[]; pathname: st
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-1 pt-2 pb-1.5 text-[0.72rem] font-semibold leading-tight",
+                "flex flex-col items-center gap-0.5 px-1 pt-2 pb-1.5 text-[0.72rem] font-semibold leading-tight max-[359px]:px-0 max-[359px]:text-[0.66rem]",
                 active ? "text-primary" : "text-muted",
               )}
             >
@@ -97,7 +97,7 @@ export function ActiveTabBarList({ items }: { items: NavItem[] }) {
 }
 
 const switcherClass =
-  "inline-flex h-10 items-center gap-1.5 rounded-full border border-line-strong px-3 text-sm font-semibold text-ink hover:bg-sunken";
+  "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-line-strong px-3 text-sm font-semibold text-ink hover:bg-sunken";
 
 /** Switches between Tamil and English, staying on the same page. */
 export function LanguageSwitcher() {
@@ -112,7 +112,7 @@ export function LanguageSwitcher() {
       lang={other}
       className={switcherClass}
     >
-      <Languages className="size-4" aria-hidden="true" />
+      <Languages className="hidden size-4 sm:block" aria-hidden="true" />
       {other === "ta" ? "தமிழ்" : "English"}
     </Link>
   );
@@ -123,7 +123,7 @@ export function LanguageSwitcherFallback() {
   const other = locale === "en" ? "ta" : "en";
   return (
     <Link href={`/${other}`} prefetch={false} hrefLang={other} lang={other} className={switcherClass}>
-      <Languages className="size-4" aria-hidden="true" />
+      <Languages className="hidden size-4 sm:block" aria-hidden="true" />
       {other === "ta" ? "தமிழ்" : "English"}
     </Link>
   );

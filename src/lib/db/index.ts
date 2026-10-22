@@ -50,7 +50,8 @@ export function createDatabase(options: DatabaseOptions = {}): DatabaseContext {
   if (dir === "memory") {
     client = new PGlite();
   } else {
-    const dataDir = path.resolve(process.cwd(), dir);
+    // The data folder is chosen at runtime; it is not part of the app's files.
+    const dataDir = path.resolve(/*turbopackIgnore: true*/ process.cwd(), dir);
     mkdirSync(dataDir, { recursive: true });
     client = new PGlite(dataDir);
   }

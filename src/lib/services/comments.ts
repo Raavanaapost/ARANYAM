@@ -135,6 +135,7 @@ export async function deleteComment(viewer: Viewer, id: string): Promise<boolean
 }
 
 export async function removeComment(moderator: Viewer, id: string) {
+  if (!isModerator(moderator)) return false;
   const [removed] = await db
     .update(comments)
     .set({ removedAt: new Date(), removedById: moderator.id })

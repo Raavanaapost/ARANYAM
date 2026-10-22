@@ -30,7 +30,10 @@ export type GroupDetail = GroupSummary & {
   pendingCount: number;
 };
 
-const memberCount = sql<number>`(select count(*) from ${groupMembers} where ${groupMembers.groupId} = ${groups.id} and ${groupMembers.status} = 'active')`;
+// Conditions inside these subqueries are nested SQL on purpose: in a select without
+// joins, Drizzle drops table names from columns written directly in the template,
+// and an unqualified "id" would then match the inner table instead of the outer one.
+const memberCount = sql<number>`(select count(*) from ${groupMembers} where ${and(eq(groupMembers.groupId, groups.id), eq(groupMembers.status, "active"))})`;
 
 function summaryFields(viewer: Viewer) {
   return {
@@ -41,8 +44,8 @@ function summaryFields(viewer: Viewer) {
     icon: groups.icon,
     color: groups.color,
     memberCount,
-    myRole: sql<GroupRole | null>`(select ${groupMembers.role} from ${groupMembers} where ${groupMembers.groupId} = ${groups.id} and ${groupMembers.userId} = ${viewer.id})`,
-    myStatus: sql<"active" | "pending" | null>`(select ${groupMembers.status} from ${groupMembers} where ${groupMembers.groupId} = ${groups.id} and ${groupMembers.userId} = ${viewer.id})`,
+    myRole: sql<GroupRole | null>`(select ${sql`${groupMembers.role}`} from ${groupMembers} where ${and(eq(groupMembers.groupId, groups.id), eq(groupMembers.userId, viewer.id))})`,
+    myStatus: sql<"active" | "pending" | null>`(select ${sql`${groupMembers.status}`} from ${groupMembers} where ${and(eq(groupMembers.groupId, groups.id), eq(groupMembers.userId, viewer.id))})`,
   };
 }
 
@@ -378,7 +381,7 @@ export async function listAllGroups() {
       color: groups.color,
       createdAt: groups.createdAt,
       memberCount,
-      ownerName: sql<string | null>`(select ${users.displayName} from ${groupMembers} join ${users} on ${users.id} = ${groupMembers.userId} where ${groupMembers.groupId} = ${groups.id} and ${groupMembers.role} = 'owner' limit 1)`,
+      ownerName: sql<string | null>`(select ${sql`${users.displayName}`} from ${groupMembers} join ${users} on ${eq(users.id, groupMembers.userId)} where ${and(eq(groupMembers.groupId, groups.id), eq(groupMembers.role, "owner"))} limit 1)`,
     })
     .from(groups)
     .orderBy(asc(groups.name));

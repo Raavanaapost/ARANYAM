@@ -30,8 +30,9 @@ export function Logo({
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
       <LogoMark />
-      <span className="flex flex-col leading-none">
-        <span className="font-display text-[1.35rem] font-bold text-primary">{primary}</span>
+      {/* On the smallest phones only the tree shows; the name stays for screen readers. */}
+      <span className="flex flex-col leading-none max-[359px]:sr-only">
+        <span className="font-display text-[1.2rem] font-bold text-primary sm:text-[1.35rem]">{primary}</span>
         <span className="mt-0.5 text-xs font-medium text-muted">{secondary}</span>
       </span>
     </span>

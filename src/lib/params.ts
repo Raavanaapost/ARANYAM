@@ -21,6 +21,18 @@ export function dateParam(value: string | string[] | undefined): Date | undefine
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
+/**
+ * A path on this site to return to after logging in, or null. Rejects anything
+ * a browser could read as another site: "//host", backslashes, and control
+ * characters or spaces, which browsers strip before following a link.
+ */
+export function safeNextPath(value: unknown): string | null {
+  if (typeof value !== "string" || value.length > 500) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  if (value.includes("\\") || /[\s\u0000-\u001f\u007f]/.test(value)) return null;
+  return value;
+}
+
 /** Builds "?a=1&b=2" from the values that are set, or "" when none are. */
 export function queryString(values: Record<string, string | undefined | null>): string {
   const params = new URLSearchParams();

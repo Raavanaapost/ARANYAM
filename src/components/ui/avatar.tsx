@@ -9,14 +9,21 @@ const sizes = {
   xl: "size-20 text-3xl",
 };
 
-/** First letter of up to two words, keeping Tamil letters and vowel signs together. */
+/**
+ * First letter of up to two words, keeping Tamil letters and vowel signs together.
+ * Tamil letters are too wide to pair inside a small circle, so a name that is not
+ * written in Latin letters shows just its first letter.
+ */
 export function initials(name: string): string {
   const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
-  const words = name.trim().split(/\s+/).filter(Boolean).slice(0, 2);
-  return words
-    .map((word) => segmenter.segment(word)[Symbol.iterator]().next().value?.segment ?? "")
-    .join("")
-    .toUpperCase();
+  const letters = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => segmenter.segment(word)[Symbol.iterator]().next().value?.segment ?? "");
+  const latin = letters.every((letter) => /^\p{Script=Latin}/u.test(letter));
+  return (latin ? letters.join("") : (letters[0] ?? "")).toUpperCase();
 }
 
 type AvatarProps = {

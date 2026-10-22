@@ -571,7 +571,7 @@ const en = {
     joinNote: "Their note",
     noNote: "No note was written.",
     invitedBy: "Invited by {name}",
-    registered: "Requested {time}",
+    registered: "Signed up {time}",
     approve: "Welcome in",
     decline: "Decline",
     declineConfirm: "Decline this request? Their account will be deleted.",

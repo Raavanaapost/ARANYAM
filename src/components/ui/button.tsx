@@ -6,7 +6,7 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "soft" | "danger
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 whitespace-nowrap select-none";
+  "inline-flex max-w-full items-center justify-center gap-2 rounded-full text-center leading-snug font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 select-none";
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-primary text-on-primary hover:bg-primary-strong shadow-sm",
@@ -18,9 +18,9 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-9 px-3.5 text-sm",
-  md: "h-11 px-5 text-[0.95rem]",
-  lg: "h-12 px-6 text-base",
+  sm: "min-h-9 px-3.5 py-1.5 text-sm",
+  md: "min-h-11 px-5 py-2 text-[0.95rem]",
+  lg: "min-h-12 px-6 py-2.5 text-base",
 };
 
 export function buttonClasses(

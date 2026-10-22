@@ -583,7 +583,7 @@ const ta: Dictionary = {
     joinNote: "அவர்களின் குறிப்பு",
     noNote: "குறிப்பு எதுவும் எழுதப்படவில்லை.",
     invitedBy: "அழைத்தவர்: {name}",
-    registered: "விண்ணப்பித்தது {time}",
+    registered: "{time} பதிவுசெய்தார்",
     approve: "வரவேற்று ஏற்றுக்கொள்",
     decline: "நிராகரி",
     declineConfirm: "இந்தக் கோரிக்கையை நிராகரிக்கவா? அவர்களின் கணக்கு நீக்கப்படும்.",

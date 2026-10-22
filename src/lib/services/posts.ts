@@ -33,7 +33,10 @@ export type PostView = {
   canRemove: boolean;
 };
 
-const commentCount = sql<number>`(select count(*) from ${comments} where ${comments.postId} = ${posts.id} and ${comments.removedAt} is null)`;
+// Conditions inside these subqueries are nested SQL on purpose: in a select without
+// joins, Drizzle drops table names from columns written directly in the template,
+// and an unqualified "id" would then match the inner table instead of the outer one.
+const commentCount = sql<number>`(select count(*) from ${comments} where ${and(eq(comments.postId, posts.id), isNull(comments.removedAt))})`;
 
 const postFields = {
   id: posts.id,
@@ -212,6 +215,7 @@ export async function deletePost(viewer: Viewer, id: string): Promise<"deleted" 
 }
 
 export async function removePost(moderator: Viewer, id: string) {
+  if (!isModerator(moderator)) return false;
   const [removed] = await db
     .update(posts)
     .set({ removedAt: new Date(), removedById: moderator.id })

@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, inArray, isNull, lt, ne, sql } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, isNull, lt, ne, notInArray, sql } from "drizzle-orm";
 import type { Locale } from "@/i18n/config";
 import { db } from "@/lib/db";
 import { groupMembers, groups, invites, users, type User, type UserRole } from "@/lib/db/schema";
@@ -285,12 +285,16 @@ export async function declineMember(moderatorId: string, userId: string): Promis
   return true;
 }
 
+/** Moderators can pause members; only an admin can pause a moderator, and nobody can pause an admin. */
 export async function suspendMember(moderatorId: string, userId: string): Promise<boolean> {
   if (moderatorId === userId) return false;
+  const actor = await findUserById(moderatorId);
+  if (!actor || actor.status !== "approved" || actor.role === "member") return false;
+  const protectedRoles: UserRole[] = actor.role === "admin" ? ["admin"] : ["admin", "moderator"];
   const [user] = await db
     .update(users)
     .set({ status: "suspended", updatedAt: new Date() })
-    .where(and(eq(users.id, userId), ne(users.role, "admin")))
+    .where(and(eq(users.id, userId), notInArray(users.role, protectedRoles)))
     .returning({ id: users.id });
   if (!user) return false;
   await invalidateAllSessions(userId);

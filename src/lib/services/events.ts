@@ -48,8 +48,11 @@ export type EventDetail = EventListItem & {
   isFull: boolean;
 };
 
-const goingCount = sql<number>`(select count(*) from ${eventRsvps} where ${eventRsvps.eventId} = ${events.id} and ${eventRsvps.status} = 'going')`;
-const interestedCount = sql<number>`(select count(*) from ${eventRsvps} where ${eventRsvps.eventId} = ${events.id} and ${eventRsvps.status} = 'interested')`;
+// Conditions inside these subqueries are nested SQL on purpose: in a select without
+// joins, Drizzle drops table names from columns written directly in the template,
+// and an unqualified "id" would then match the inner table instead of the outer one.
+const goingCount = sql<number>`(select count(*) from ${eventRsvps} where ${and(eq(eventRsvps.eventId, events.id), eq(eventRsvps.status, "going"))})`;
+const interestedCount = sql<number>`(select count(*) from ${eventRsvps} where ${and(eq(eventRsvps.eventId, events.id), eq(eventRsvps.status, "interested"))})`;
 
 function listFields(viewer: Viewer) {
   return {
@@ -68,7 +71,7 @@ function listFields(viewer: Viewer) {
     groupIcon: groups.icon,
     goingCount,
     interestedCount,
-    myRsvp: sql<RsvpStatus | null>`(select ${eventRsvps.status} from ${eventRsvps} where ${eventRsvps.eventId} = ${events.id} and ${eventRsvps.userId} = ${viewer.id})`,
+    myRsvp: sql<RsvpStatus | null>`(select ${sql`${eventRsvps.status}`} from ${eventRsvps} where ${and(eq(eventRsvps.eventId, events.id), eq(eventRsvps.userId, viewer.id))})`,
   };
 }
 
@@ -272,6 +275,7 @@ export async function deleteEvent(viewer: Viewer, id: string): Promise<"deleted"
 }
 
 export async function removeEvent(moderator: Viewer, id: string) {
+  if (!isModerator(moderator)) return false;
   const [removed] = await db
     .update(events)
     .set({ removedAt: new Date(), removedById: moderator.id })

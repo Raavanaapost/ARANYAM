@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { clearSessionCookie, getRequestMeta, readSessionCookie, setSessionCookie } from "@/lib/auth/cookies";
-import { getViewer, safeNextPath } from "@/lib/auth/dal";
+import { getViewer } from "@/lib/auth/dal";
+import { safeNextPath } from "@/lib/params";
 import { checkPasswordStrength, PASSWORD_MAX_LENGTH } from "@/lib/auth/password";
 import { hitRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/auth/rate-limit";
 import { createSession, invalidateSessionToken } from "@/lib/auth/session";

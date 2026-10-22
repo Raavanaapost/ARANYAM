@@ -1,33 +1,8 @@
 import { getViewer } from "@/lib/auth/dal";
 import { isActiveMember } from "@/lib/auth/viewer";
 import { env } from "@/lib/env";
+import { buildCalendar } from "@/lib/ics";
 import { getEvent } from "@/lib/services/events";
-
-/** Text values in iCalendar escape backslashes, commas, semicolons and line breaks. */
-function escapeText(value: string) {
-  return value.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
-}
-
-function utcStamp(date: Date) {
-  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-}
-
-/** Lines longer than 75 bytes are folded onto continuation lines that start with a space. */
-function fold(line: string) {
-  const encoder = new TextEncoder();
-  const chunks: string[] = [];
-  let current = "";
-  for (const char of line) {
-    if (encoder.encode(current + char).length > (chunks.length ? 74 : 75)) {
-      chunks.push(current);
-      current = char;
-    } else {
-      current += char;
-    }
-  }
-  chunks.push(current);
-  return chunks.join("\r\n ");
-}
 
 /**
  * "Add to calendar": the event as an .ics file. The address or meeting link is
@@ -43,30 +18,19 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/even
   const link = `${env.appUrl}/${viewer.locale}/events/${event.id}`;
   const privateDetails = event.canSeePrivate ? (event.mode === "online" ? event.onlineUrl : event.venue) : "";
   const location = [privateDetails, event.mode === "online" ? "" : event.city].filter(Boolean).join(", ");
-  const endsAt = event.endsAt ?? new Date(event.startsAt.getTime() + 2 * 60 * 60 * 1000);
-  const description = [event.description, link].filter(Boolean).join("\n\n");
 
-  const lines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Aranyam//Community events//EN",
-    "CALSCALE:GREGORIAN",
-    "METHOD:PUBLISH",
-    "BEGIN:VEVENT",
-    `UID:${event.id}@aranyam`,
-    `DTSTAMP:${utcStamp(new Date())}`,
-    `DTSTART:${utcStamp(event.startsAt)}`,
-    `DTEND:${utcStamp(endsAt)}`,
-    `SUMMARY:${escapeText(event.title)}`,
-    `DESCRIPTION:${escapeText(description)}`,
-    location ? `LOCATION:${escapeText(location)}` : null,
-    `URL:${link}`,
-    `STATUS:${event.cancelled ? "CANCELLED" : "CONFIRMED"}`,
-    "END:VEVENT",
-    "END:VCALENDAR",
-  ].filter((line): line is string => line !== null);
+  const calendar = buildCalendar({
+    uid: `${event.id}@aranyam`,
+    start: event.startsAt,
+    end: event.endsAt ?? new Date(event.startsAt.getTime() + 2 * 60 * 60 * 1000),
+    title: event.title,
+    description: [event.description, link].filter(Boolean).join("\n\n"),
+    location,
+    url: link,
+    cancelled: event.cancelled,
+  });
 
-  return new Response(lines.map(fold).join("\r\n") + "\r\n", {
+  return new Response(calendar, {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": 'attachment; filename="aranyam-event.ics"',

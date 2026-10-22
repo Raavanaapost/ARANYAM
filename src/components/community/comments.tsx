@@ -77,7 +77,7 @@ export async function CommentSection({
                   report={comment.isMine ? undefined : { targetType: "comment", targetId: comment.id }}
                 />
               </div>
-              <RichText text={comment.body} className="mt-2 pl-11 text-ink" />
+              <RichText text={comment.body} className="mt-2 text-ink sm:pl-11" />
             </li>
           ))}
         </ol>

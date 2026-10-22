@@ -1,5 +1,5 @@
-import type { Locale } from "@/i18n/config";
-import type { UserRole, UserStatus } from "@/lib/db/schema";
+import { isLocale, type Locale } from "@/i18n/config";
+import type { User, UserRole, UserStatus } from "@/lib/db/schema";
 
 /**
  * The signed-in person, reduced to the fields the app needs. Created by the
@@ -19,6 +19,23 @@ export type Viewer = {
   location: string;
   createdAt: Date;
 };
+
+export function viewerFromUser(user: User, sessionId: string): Viewer {
+  return {
+    id: user.id,
+    sessionId,
+    email: user.email,
+    displayName: user.displayName,
+    role: user.role,
+    status: user.status,
+    emailVerified: user.emailVerifiedAt !== null,
+    locale: isLocale(user.locale) ? user.locale : "en",
+    avatarHue: user.avatarHue,
+    bio: user.bio,
+    location: user.location,
+    createdAt: user.createdAt,
+  };
+}
 
 /** A member whose email is confirmed and who was welcomed in by a moderator. */
 export type ActiveViewer = Viewer & { emailVerified: true; status: "approved" };

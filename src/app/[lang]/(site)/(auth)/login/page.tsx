@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { AuthCard, AuthFormSkeleton, firstParam } from "@/components/auth/auth-card";
+import { AuthCard, AuthFormSkeleton } from "@/components/auth/auth-card";
 import { LoginForm } from "@/components/auth/forms";
 import { Alert } from "@/components/ui/alert";
 import { getI18n } from "@/i18n/server";
-import { getViewer, safeNextPath } from "@/lib/auth/dal";
+import { getViewer } from "@/lib/auth/dal";
+import { firstParam, safeNextPath } from "@/lib/params";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getI18n();
