@@ -1,0 +1,12 @@
+# Netlify builds Aranyam with its Next.js runtime. Because @netlify/database is
+# installed, Netlify also provides a PostgreSQL database (NETLIFY_DB_URL) and
+# applies netlify/database/migrations before each deploy goes live.
+# Settings such as APP_URL, SMTP_URL and ADMIN_EMAILS belong in the Netlify
+# dashboard (Project configuration > Environment variables), never in this file.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

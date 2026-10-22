@@ -14,32 +14,56 @@ export type Transaction = Parameters<Parameters<Database["transaction"]>[0]>[0];
 export type Executor = Database | Transaction;
 
 export type DatabaseContext = {
-  kind: "postgres" | "pglite";
+  /** "netlify" is PostgreSQL from Netlify Database, which applies migrations itself on each deploy. */
+  kind: "postgres" | "netlify" | "pglite";
   db: Database;
   close: () => Promise<void>;
 };
 
 export type DatabaseOptions = {
-  /** PostgreSQL connection string. When empty, the embedded PGlite database is used. */
+  /**
+   * PostgreSQL connection string. Defaults to DATABASE_URL, then to
+   * NETLIFY_DB_URL on Netlify. When empty, the embedded PGlite database is used.
+   */
   url?: string;
   /** Directory for PGlite data, or "memory" for a throwaway in-memory database. */
   pgliteDir?: string;
 };
 
 /**
- * Creates a database connection. With DATABASE_URL set it talks to PostgreSQL;
- * otherwise it runs PGlite, a full PostgreSQL build that runs inside Node, so
- * the app works locally without installing a database server.
+ * postgres.js sends settings it does not know to the server, which refuses
+ * them. channel_binding is a libpq client setting that appears in Neon-style
+ * connection strings such as Netlify Database's, so it is dropped here.
+ */
+export function withoutClientOnlyParams(url: string): string {
+  const [base, query] = url.split("?", 2) as [string, string | undefined];
+  if (!query) return url;
+  const params = new URLSearchParams(query);
+  if (!params.has("channel_binding")) return url;
+  params.delete("channel_binding");
+  const rest = params.toString();
+  return rest ? `${base}?${rest}` : base;
+}
+
+/**
+ * Creates a database connection. With DATABASE_URL set it talks to PostgreSQL,
+ * and on Netlify to Netlify Database. Otherwise it runs PGlite, a full
+ * PostgreSQL build that runs inside Node, so the app works locally without
+ * installing a database server.
  */
 export function createDatabase(options: DatabaseOptions = {}): DatabaseContext {
-  const url = options.url ?? process.env.DATABASE_URL ?? "";
+  const netlify = options.url === undefined && !process.env.DATABASE_URL && Boolean(process.env.NETLIFY_DB_URL);
+  const url = options.url ?? (process.env.DATABASE_URL || process.env.NETLIFY_DB_URL || "");
   if (url) {
-    const client = postgres(url, {
-      max: Number(process.env.DATABASE_POOL_SIZE ?? 10),
+    const client = postgres(withoutClientOnlyParams(url), {
+      // On Netlify each request runs in a short-lived function, so a few
+      // connections are plenty and idle ones are let go.
+      max: Number(process.env.DATABASE_POOL_SIZE ?? (netlify ? 3 : 10)),
+      ...(netlify ? { idle_timeout: 20 } : {}),
       onnotice: () => {},
     });
     return {
-      kind: "postgres",
+      kind: netlify ? "netlify" : "postgres",
       db: drizzlePostgres({ client, schema }) as unknown as Database,
       close: () => client.end({ timeout: 5 }),
     };

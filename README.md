@@ -82,6 +82,14 @@ The demo accounts share a published password, so never add them to a real commun
 
 `.env.example` explains every setting.
 
+### On Netlify
+
+`netlify.toml` holds the build settings. Because `@netlify/database` is installed, Netlify creates a PostgreSQL database for the site and applies `netlify/database/migrations` before each deploy goes live, so leave `DATABASE_URL` unset there.
+
+In the Netlify dashboard, under Project configuration > Environment variables, set `APP_URL`, `ADMIN_EMAILS`, `SMTP_URL` and `EMAIL_FROM`, plus `NETLIFY_NEXT_SKEW_PROTECTION=true` so open pages keep working while a new version goes live. Deploy, then register with the email in `ADMIN_EMAILS` to become the first admin.
+
+`npm run db:generate` copies each new migration into `netlify/database/migrations`. Commit both copies.
+
 ## Tests
 
 ```bash
