@@ -21,12 +21,6 @@ import {
   type NavItem,
 } from "./nav";
 
-function brand(locale: Locale, t: Dictionary) {
-  return locale === "ta"
-    ? { primary: t.meta.siteNameTamil, secondary: "Aranyam" }
-    : { primary: "Aranyam", secondary: t.meta.siteNameTamil };
-}
-
 function Switcher() {
   return (
     <Suspense fallback={<LanguageSwitcherFallback />}>
@@ -68,7 +62,7 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-30 border-b border-line/70 bg-canvas/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <Link href={`/${locale}`} className="shrink-0 rounded-xl">
-          <Logo {...brand(locale, t)} />
+          <Logo motto={t.meta.motto} />
         </Link>
         <nav aria-label={t.nav.mainNavigation} className="hidden md:block">
           <PublicLinks locale={locale} t={t} />
@@ -225,7 +219,7 @@ export async function AppHeader() {
       <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:gap-3">
           <Link href={`/${locale}/feed`} className="shrink-0 rounded-xl">
-            <Logo {...brand(locale, t)} />
+            <Logo motto={t.meta.motto} />
           </Link>
           <nav aria-label={t.nav.mainNavigation} className="ml-4 hidden lg:block">
             <Suspense fallback={<NavList items={items} pathname={null} />}>

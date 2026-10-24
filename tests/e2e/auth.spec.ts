@@ -34,7 +34,7 @@ test("a new family confirms their email and is welcomed in by a moderator", asyn
   await moderator.close();
 
   await page.goto("/en/feed");
-  await expect(page.getByRole("heading", { name: "Vanakkam, Lakshmi" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Welcome, Lakshmi" })).toBeVisible();
 });
 
 test("a family invited by a member skips the wait", async ({ page, browser }) => {
@@ -47,7 +47,7 @@ test("a family invited by a member skips the wait", async ({ page, browser }) =>
 
   const email = newEmail("kavitha");
   await page.goto(inviteUrl);
-  await expect(page.getByText("Priya Amma invited you to Aranyam.")).toBeVisible();
+  await expect(page.getByText("Priya Amma invited you to Aranyam Together.")).toBeVisible();
   await page.getByLabel("Your name in Aranyam").fill("Kavitha");
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password", { exact: true }).fill("tea and good books");

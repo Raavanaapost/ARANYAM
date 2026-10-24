@@ -89,3 +89,29 @@ describe("choosing a language", () => {
     expect(switchLocaleInPath("/", "ta")).toBe("/ta");
   });
 });
+
+describe("the site's own wording", () => {
+  const en = flatten(dictionaries.en as unknown as Tree);
+  const ta = flatten(dictionaries.ta as unknown as Tree);
+
+  it("is called Aranyam Together in both languages", () => {
+    expect(dictionaries.en.meta.siteName).toBe("Aranyam Together");
+    expect(dictionaries.ta.meta.siteName).toBe("Aranyam Together");
+  });
+
+  it("speaks to families in general, without diagnosis labels or naming one community", () => {
+    const enLabels = /autis|special needs|adhd|diagnos|therap|sensory|tamil famil/i;
+    const taLabels = /ஆட்டிசம்|சிறப்புத் தேவை|தமிழ்க் குடும்ப|சிகிச்சை|மாற்றுத்திறன்/;
+    expect([...en].filter(([, text]) => enLabels.test(text)).map(([key]) => key)).toEqual([]);
+    expect([...ta].filter(([, text]) => taLabels.test(text)).map(([key]) => key)).toEqual([]);
+  });
+
+  it("has three slides with a title and words for every slideshow", () => {
+    const pages = ["landing", "about", "feed", "groups", "events", "blogs", "news"] as const;
+    for (const dictionary of [dictionaries.en, dictionaries.ta]) {
+      for (const page of pages) {
+        expect(dictionary.slides[page]).toHaveLength(3);
+      }
+    }
+  });
+});

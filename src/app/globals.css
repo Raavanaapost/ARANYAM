@@ -5,55 +5,63 @@
  * visitor's light or dark preference without per-component dark styles.
  */
 :root {
-  --canvas: #faf7f0;
-  --surface: #ffffff;
-  --sunken: #f3eee3;
-  --line: #e6dfd0;
-  --line-strong: #d6cdb9;
-  --ink: #1d2b25;
-  --muted: #5b6862;
-  --primary: #23634f;
-  --primary-strong: #1a4f3f;
-  --primary-soft: #e2efe8;
+  /* Calm and airy: soft ivory, sage green, a little warm gold and lavender mist. */
+  --canvas: #f6f4ee;
+  --surface: #fffdf9;
+  --sunken: #eeebe3;
+  --line: #e2ddd1;
+  --line-strong: #cdc6b6;
+  --ink: #24302c;
+  --muted: #5b6762;
+  --primary: #2f6a5a;
+  --primary-strong: #245647;
+  --primary-soft: #e1ede7;
   --on-primary: #ffffff;
-  --accent: #a8630f;
-  --accent-soft: #fbeedb;
-  --heart: #c2463f;
-  --heart-soft: #fbe7e4;
-  --info: #2c6496;
-  --info-soft: #e4eef7;
-  --danger: #b03a2e;
-  --danger-soft: #f9e3df;
-  --warning: #8a5a00;
-  --warning-soft: #fcf1d6;
-  --focus: #2f7d64;
+  --accent: #8a5f1c;
+  --accent-soft: #f6edda;
+  --together: #b85f27;
+  --heart: #b4473f;
+  --heart-soft: #f8e6e2;
+  --info: #4d5a99;
+  --info-soft: #e8eaf6;
+  --danger: #ab3b2f;
+  --danger-soft: #f8e3df;
+  --warning: #80570a;
+  --warning-soft: #faf0d7;
+  --focus: #3c7f6c;
+  --dawn: #efe9f5;
+  --glow: #fbefdc;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --canvas: #101814;
-    --surface: #17221d;
-    --sunken: #1d2a24;
-    --line: #2a3a33;
-    --line-strong: #394c43;
-    --ink: #e6efe9;
-    --muted: #a3b3ab;
-    --primary: #6cc4a0;
-    --primary-strong: #8bd5b5;
-    --primary-soft: #1e3a30;
+    /* A quiet night in the grove. */
+    --canvas: #111a17;
+    --surface: #17221e;
+    --sunken: #1c2925;
+    --line: #29382f;
+    --line-strong: #384a41;
+    --ink: #e6eee9;
+    --muted: #a5b4ad;
+    --primary: #7cc7aa;
+    --primary-strong: #9ad6bf;
+    --primary-soft: #1f3a31;
     --on-primary: #0b1511;
-    --accent: #ecb062;
-    --accent-soft: #3a2c17;
+    --accent: #e2b66e;
+    --accent-soft: #382c18;
+    --together: #eba06a;
     --heart: #f08b84;
     --heart-soft: #3f2220;
-    --info: #8dbbe6;
-    --info-soft: #1d2d3d;
+    --info: #a9b4ec;
+    --info-soft: #232842;
     --danger: #f19a8f;
     --danger-soft: #3d201c;
     --warning: #e9c46a;
     --warning-soft: #3a3016;
-    --focus: #8bd5b5;
+    --focus: #9ad6bf;
+    --dawn: #1d2230;
+    --glow: #2b2618;
     color-scheme: dark;
   }
 }
@@ -72,6 +80,9 @@
   --color-on-primary: var(--on-primary);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-together: var(--together);
+  --color-dawn: var(--dawn);
+  --color-glow: var(--glow);
   --color-heart: var(--heart);
   --color-heart-soft: var(--heart-soft);
   --color-info: var(--info);
@@ -83,7 +94,8 @@
   --color-focus: var(--focus);
 
   --font-sans: "Aranyam Figures", "Mukta Malar", "Noto Sans Tamil", "Latha", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Baloo Thambi 2 Variable", "Mukta Malar", ui-sans-serif, system-ui, sans-serif;
+  /* Lora (like the logo's lettering) for English headings; Tamil letters fall back to Baloo Thambi 2. */
+  --font-display: "Lora Variable", "Baloo Thambi 2 Variable", "Mukta Malar", ui-serif, Georgia, serif;
 }
 
 /*
@@ -106,7 +118,12 @@
   }
 
   body {
-    background: var(--canvas);
+    /* A soft dawn wash at the top of every page, fading into the plain canvas. */
+    background:
+      radial-gradient(70rem 28rem at 8% -6rem, var(--dawn), transparent 70%),
+      radial-gradient(56rem 24rem at 100% -4rem, var(--glow), transparent 65%),
+      var(--canvas);
+    background-repeat: no-repeat;
     color: var(--ink);
     font-family: var(--font-sans);
     line-height: 1.65;
@@ -119,7 +136,7 @@
   h4 {
     font-family: var(--font-display);
     line-height: 1.25;
-    font-weight: 700;
+    font-weight: 600;
     text-wrap: balance;
   }
 
@@ -264,6 +281,20 @@
     }
   }
 
+  /* Slideshow pictures drift very slowly while their slide is showing. */
+  .scene-drift {
+    animation: scene-drift 16s ease-in-out infinite alternate;
+  }
+
+  @keyframes scene-drift {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.06) translateX(-1%);
+    }
+  }
+
   /* Native modal dialogs (the report form). */
   dialog.sheet {
     margin: auto;
@@ -288,5 +319,9 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .scene-drift {
+    animation: none !important;
   }
 }

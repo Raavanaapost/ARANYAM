@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LinkTabs } from "@/components/community/basics";
 import { EventCard } from "@/components/community/cards";
+import { PageSlides } from "@/components/page-slides";
 import { ButtonLink } from "@/components/ui/button";
 import { EmptyState, Skeleton } from "@/components/ui/misc";
 import { PageHeader } from "@/components/ui/misc";
@@ -22,6 +23,7 @@ export default async function EventsPage({ searchParams }: PageProps<"/[lang]/ev
   const { locale, t } = await getI18n();
   return (
     <>
+      <PageSlides page="events" className="mb-8" />
       <PageHeader
         title={t.events.title}
         subtitle={t.events.subtitle}

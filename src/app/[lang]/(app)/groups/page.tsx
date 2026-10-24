@@ -2,6 +2,7 @@ import { Plus, UsersRound } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { GroupCard } from "@/components/community/cards";
+import { PageSlides } from "@/components/page-slides";
 import { ButtonLink } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/card";
 import { EmptyState, PageHeader, Skeleton } from "@/components/ui/misc";
@@ -18,6 +19,7 @@ export default async function GroupsPage() {
   const { locale, t } = await getI18n();
   return (
     <>
+      <PageSlides page="groups" className="mb-8" />
       <PageHeader
         title={t.groups.title}
         subtitle={t.groups.subtitle}

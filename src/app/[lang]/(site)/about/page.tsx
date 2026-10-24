@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContentPage } from "@/components/content-page";
+import { PageSlides } from "@/components/page-slides";
 import { ButtonLink } from "@/components/ui/button";
 import { getI18n } from "@/i18n/server";
 
@@ -12,7 +13,12 @@ export default async function AboutPage() {
   const { locale, t } = await getI18n();
   const page = t.pages.about;
   return (
-    <ContentPage title={page.title} intro={page.intro} sections={page.sections}>
+    <ContentPage
+      title={page.title}
+      intro={page.intro}
+      sections={page.sections}
+      banner={<PageSlides page="about" />}
+    >
       <div className="mt-12 flex flex-col gap-3 sm:flex-row">
         <ButtonLink href={`/${locale}/register`} size="lg">
           {t.landing.ctaJoin}

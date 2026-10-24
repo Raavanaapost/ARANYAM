@@ -1,12 +1,13 @@
 import "@fontsource/mukta-malar/400.css";
 import "@fontsource/mukta-malar/700.css";
 import "@fontsource-variable/baloo-thambi-2/index.css";
+import "@fontsource-variable/lora/index.css";
 import "./globals.css";
 import type { Metadata } from "next";
 import { LogoMark } from "@/components/logo";
 
 export const metadata: Metadata = {
-  title: "Page not found · Aranyam",
+  title: "Page not found · Aranyam Together",
   robots: { index: false, follow: false },
 };
 

@@ -2,6 +2,7 @@ import { BookOpen, ExternalLink, Newspaper, PenLine, Plus } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
+import { PageSlides } from "@/components/page-slides";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
@@ -59,6 +60,7 @@ export async function ArticleListPage({ type, searchParams }: { type: ArticleTyp
   const text = strings(t, type);
   return (
     <>
+      <PageSlides page={type === "news" ? "news" : "blogs"} className="mb-8" />
       <PageHeader
         title={text.title}
         subtitle={text.subtitle}

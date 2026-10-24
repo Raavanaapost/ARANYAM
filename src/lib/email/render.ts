@@ -47,11 +47,11 @@ export function renderEmail(parts: EmailParts): EmailContent {
   const p = (content: string) =>
     `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#1d2b25;font-family:${font}">${content}</p>`;
   const button = parts.button
-    ? `<p style="margin:24px 0"><a href="${escapeHtml(parts.button.url)}" style="display:inline-block;background:#23634f;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-family:${font};font-size:16px">${escapeHtml(parts.button.label)}</a></p>`
+    ? `<p style="margin:24px 0"><a href="${escapeHtml(parts.button.url)}" style="display:inline-block;background:#2f6a5a;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-family:${font};font-size:16px">${escapeHtml(parts.button.label)}</a></p>`
     : "";
   const links = (parts.links ?? [])
     .map((link) =>
-      p(`<a href="${escapeHtml(link.url)}" style="color:#23634f">${escapeHtml(link.label)}</a>`),
+      p(`<a href="${escapeHtml(link.url)}" style="color:#2f6a5a">${escapeHtml(link.label)}</a>`),
     )
     .join("");
   const notes = (parts.notes ?? [])
@@ -64,12 +64,12 @@ export function renderEmail(parts: EmailParts): EmailContent {
   const html = `<!doctype html>
 <html lang="${parts.locale}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(parts.subject)}</title></head>
-<body style="margin:0;padding:0;background:#faf7f0">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#faf7f0;padding:24px 12px">
+<body style="margin:0;padding:0;background:#f6f4ee">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f4ee;padding:24px 12px">
 <tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e6dfd0;border-radius:16px;padding:32px">
 <tr><td>
-<p style="margin:0 0 24px;font-size:20px;font-weight:700;color:#23634f;font-family:${font}">🌳 Aranyam · ஆரண்யம்</p>
+<p style="margin:0 0 24px;font-size:20px;font-weight:700;color:#2f6a5a;font-family:${font}">Aranyam <span style="color:#b85f27">Together</span></p>
 ${greeting ? p(escapeHtml(greeting)) : ""}
 ${parts.paragraphs.map((para) => p(escapeHtml(para))).join("")}
 ${button}
@@ -86,11 +86,16 @@ ${p(escapeHtml(t.signoff).replace(/\n/g, "<br>"))}
   return { subject: parts.subject, text, html };
 }
 
+/** Adds the community's name to a subject, unless the subject already says it. */
+function subjectLine(subject: string): string {
+  return subject.includes("Aranyam Together") ? subject : `${subject} · Aranyam Together`;
+}
+
 export function verifyEmailMessage(locale: Locale, name: string, url: string): EmailContent {
   const t = getDictionaryFor(locale).email;
   return renderEmail({
     locale,
-    subject: `${t.verify.subject} · Aranyam`,
+    subject: subjectLine(t.verify.subject),
     name,
     paragraphs: [t.verify.body],
     button: { label: t.verify.button, url },
@@ -102,7 +107,7 @@ export function resetPasswordMessage(locale: Locale, name: string, url: string):
   const t = getDictionaryFor(locale).email;
   return renderEmail({
     locale,
-    subject: `${t.reset.subject} · Aranyam`,
+    subject: subjectLine(t.reset.subject),
     name,
     paragraphs: [t.reset.body],
     button: { label: t.reset.button, url },
@@ -119,7 +124,7 @@ export function existingAccountMessage(
   const t = getDictionaryFor(locale).email;
   return renderEmail({
     locale,
-    subject: `${t.existing.subject} · Aranyam`,
+    subject: subjectLine(t.existing.subject),
     name,
     paragraphs: [t.existing.body],
     button: { label: t.existing.login, url: loginUrl },
@@ -132,7 +137,7 @@ export function approvedMessage(locale: Locale, name: string, url: string): Emai
   const t = getDictionaryFor(locale).email;
   return renderEmail({
     locale,
-    subject: `${t.approved.subject} · Aranyam`,
+    subject: subjectLine(t.approved.subject),
     name,
     paragraphs: [t.approved.body],
     button: { label: t.approved.button, url },
@@ -143,7 +148,7 @@ export function declinedMessage(locale: Locale, name: string): EmailContent {
   const t = getDictionaryFor(locale).email;
   return renderEmail({
     locale,
-    subject: `${t.declined.subject} · Aranyam`,
+    subject: subjectLine(t.declined.subject),
     name,
     paragraphs: [t.declined.body],
   });

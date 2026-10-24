@@ -3,6 +3,7 @@ import "@fontsource/mukta-malar/500.css";
 import "@fontsource/mukta-malar/600.css";
 import "@fontsource/mukta-malar/700.css";
 import "@fontsource-variable/baloo-thambi-2/index.css";
+import "@fontsource-variable/lora/index.css";
 import "../globals.css";
 import type { Metadata, Viewport } from "next";
 import { I18nProvider } from "@/i18n/client";
@@ -18,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: { default: t.meta.siteName, template: `%s · ${t.meta.siteName}` },
     description: t.meta.description,
-    applicationName: "Aranyam",
+    applicationName: "Aranyam Together",
     icons: {
       icon: [
         { url: "/brand/icon-64.png", sizes: "64x64", type: "image/png" },
@@ -37,8 +38,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#faf7f0" },
-    { media: "(prefers-color-scheme: dark)", color: "#101814" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f4ee" },
+    { media: "(prefers-color-scheme: dark)", color: "#111a17" },
   ],
 };
 

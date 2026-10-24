@@ -7,11 +7,11 @@
  */
 const en = {
   meta: {
-    siteName: "Aranyam",
-    siteNameTamil: "ஆரண்யம்",
-    tagline: "A safe grove for Tamil families raising children with special needs",
+    siteName: "Aranyam Together",
+    motto: "Families · Support · Belonging",
+    tagline: "A calm, private place where families walk together",
     description:
-      "Aranyam is a private, members-only community where Tamil families raising children with special needs share, learn and meet.",
+      "Aranyam Together is a private, members-only community where families on a similar road share hope, learn from each other and meet.",
   },
   common: {
     save: "Save",
@@ -68,7 +68,7 @@ const en = {
     logout: "Log out",
     login: "Log in",
     join: "Request to join",
-    openApp: "Open Aranyam",
+    openApp: "Open Aranyam Together",
     about: "About",
     privacy: "Privacy",
     guidelines: "Guidelines",
@@ -79,9 +79,8 @@ const en = {
   },
   landing: {
     logoAlt: "Aranyam Together logo: families, support, belonging",
-    eyebrow: "For Tamil families raising children with special needs",
-    title: "A safe grove where our families grow together",
-    body: "Aranyam is a private, members-only community. Share your journey, ask questions, find family events and friends who truly understand, in Tamil or English, without having to go public.",
+    introTitle: "A safe grove where our families grow together",
+    body: "Aranyam Together is a private, members-only community for families going through the same kind of days. Share your journey, ask questions, find family events and friends who truly understand, without having to go public.",
     ctaJoin: "Request to join",
     ctaLogin: "I already have an account",
     trust: "Only approved families can see what is shared. You can always post without your name.",
@@ -89,13 +88,13 @@ const en = {
     privateTitle: "Private by design",
     privateBody:
       "Nothing here is public. Every new family is welcomed by a volunteer moderator, posts never appear on search engines, and you can share without your name.",
-    bilingualTitle: "In Tamil and English",
-    bilingualBody:
-      "Read and write in the language you are comfortable with, and switch with one tap at any time.",
+    hopeTitle: "Room for hope",
+    hopeBody:
+      "Celebrate small steps, share what helped, and look ahead to your children's future with people who believe in it too.",
     togetherTitle: "You are not alone",
     togetherBody:
-      "Join groups for your city or your child's needs, meet at sensory-friendly events, and learn from parents a few steps ahead.",
-    featuresTitle: "What you can do on Aranyam",
+      "Join groups for your city or your interests, meet at calm and welcoming events, and learn from parents a few steps ahead.",
+    featuresTitle: "What you can do on Aranyam Together",
     featureThoughts: "Share thoughts, questions and small victories",
     featureBlogs: "Write your family's story as a blog",
     featureEvents: "Find and organise family events",
@@ -117,10 +116,10 @@ const en = {
     hidePassword: "Hide password",
     login: {
       title: "Welcome back",
-      subtitle: "Log in to your Aranyam account.",
+      subtitle: "Log in to your Aranyam Together account.",
       submit: "Log in",
       forgot: "Forgot your password?",
-      noAccount: "New to Aranyam?",
+      noAccount: "New to Aranyam Together?",
       registerLink: "Request to join",
       invalid: "That email and password don't match. Please try again.",
       suspended: "This account has been paused. Please contact the moderators.",
@@ -131,9 +130,9 @@ const en = {
       alreadyLoggedIn: "You are already logged in.",
     },
     register: {
-      title: "Request to join Aranyam",
+      title: "Request to join Aranyam Together",
       subtitle: "A volunteer moderator reviews every request to keep our community safe.",
-      displayName: "Your name in Aranyam",
+      displayName: "Your name in Aranyam Together",
       displayNameHint:
         "A nickname is fine, for example “Priya Amma”. This is how other members will see you.",
       emailHint: "Never shown to other members.",
@@ -146,7 +145,7 @@ const en = {
       submit: "Send my request",
       haveAccount: "Already a member?",
       loginLink: "Log in",
-      invitedBy: "{name} invited you to Aranyam.",
+      invitedBy: "{name} invited you to Aranyam Together.",
       invitedSkip: "Your account will be ready as soon as you confirm your email.",
       inviteInvalid:
         "This invite link has expired or was already used. You can still request to join below.",
@@ -216,7 +215,7 @@ const en = {
     },
     kindLabel: "What kind of post is this?",
     audience: "Who can see this?",
-    everyone: "All members of Aranyam",
+    everyone: "All members of Aranyam Together",
     anonymous: "Post without my name",
     anonymousHint: "Your name is hidden from every member.",
     submit: "Share",
@@ -275,7 +274,7 @@ const en = {
     bodyLabel: "Your story",
     bodyHint: "You can use **bold**, *italic*, # headings, - lists and [links](https://…).",
     tagsLabel: "Topics",
-    tagsHint: "Separate with commas, for example: autism, school, therapy.",
+    tagsHint: "Separate with commas, for example: school, hope, daily life.",
     anonymous: "Publish without my name",
     anonymousHint: "Members will see “A parent” as the author.",
     write_tab: "Write",
@@ -295,7 +294,7 @@ const en = {
   },
   news: {
     title: "News and updates",
-    subtitle: "Government schemes, awareness, therapy resources and community announcements.",
+    subtitle: "Support schemes, helpful resources, awareness and community announcements.",
     add: "Add news",
     editorTitleNew: "Add news",
     editorTitleEdit: "Edit news",
@@ -363,7 +362,7 @@ const en = {
     groupLabel: "Share with",
     featuresLabel: "Good to know",
     features: {
-      sensory_friendly: "Sensory-friendly",
+      sensory_friendly: "Calm and quiet",
       wheelchair: "Wheelchair accessible",
       siblings_welcome: "Siblings welcome",
       parents_only: "Parents only",
@@ -392,7 +391,7 @@ const en = {
   },
   groups: {
     title: "Groups",
-    subtitle: "Smaller circles of families, by city, by need or by interest.",
+    subtitle: "Smaller circles of families, by city or by interest.",
     create: "Create a group",
     myGroups: "My groups",
     discover: "Discover groups",
@@ -436,7 +435,7 @@ const en = {
     decline: "Decline",
     inviteLink: "Invite link",
     inviteLinkHint:
-      "Share this link privately with members you want to add. Anyone with the link who is an approved Aranyam member can join directly.",
+      "Share this link privately with members you want to add. Anyone with the link who is an approved Aranyam Together member can join directly.",
     regenerate: "Create a new link",
     regenerateConfirm: "The old link will stop working. Continue?",
     makeAdmin: "Make group admin",
@@ -534,7 +533,7 @@ const en = {
     expires: "Expires {date}",
     privacyTitle: "Your privacy",
     privacyBody:
-      "Aranyam keeps only what is needed to run the community: your email, your profile, and what you choose to share. We never sell data or show ads.",
+      "Aranyam Together keeps only what is needed to run the community: your email, your profile, and what you choose to share. We never sell data or show ads.",
     privacyLink: "Read how we protect your family",
     exportTitle: "Download your data",
     exportBody: "Get a copy of your profile, posts, blogs, comments and events as a file.",
@@ -549,7 +548,7 @@ const en = {
   },
   admin: {
     title: "Moderation",
-    subtitle: "Thank you for keeping Aranyam safe and kind.",
+    subtitle: "Thank you for keeping Aranyam Together safe and kind.",
     tabs: {
       overview: "Overview",
       members: "Members",
@@ -648,7 +647,7 @@ const en = {
     justNow: "just now",
   },
   feed: {
-    greeting: "Vanakkam, {name}",
+    greeting: "Welcome, {name}",
     subtitle: "What would you like to share today?",
     filterLabel: "Filter posts",
   },
@@ -677,25 +676,25 @@ const en = {
   },
   pages: {
     about: {
-      title: "About Aranyam",
+      title: "About Aranyam Together",
       intro:
-        "Aranyam means forest. A forest shelters every kind of tree, each growing in its own way and at its own pace. We hope this community can be that kind of place for Tamil families raising children with special needs.",
+        "Aranyam means forest. A forest shelters every kind of tree, each growing in its own way and at its own pace. We hope this community can be that kind of place for families who share the same hopes and the same hard days.",
       sections: [
         {
           title: "Why we started",
-          body: "Many of our families carry their worries quietly. Some are afraid of what relatives will say. Some meet only a few other families, by chance, in a therapy centre waiting room. As our children grow, the questions grow too: schools, therapies, government support, independence, the future. No family should have to find these answers alone.",
+          body: "Many families carry their worries quietly. Some are afraid of what relatives will say. Some meet only a few other families, by chance, in a waiting room. As our children grow, the questions grow too: schools, support, independence, the future. No family should have to find these answers alone.",
         },
         {
-          title: "What Aranyam is",
-          body: "A private, bilingual community where families can share thoughts and questions, write their stories, find family-friendly events, and form smaller groups by city or by need. Nothing is public, and you can always share without your name.",
+          title: "What Aranyam Together is",
+          body: "A private community where families can share thoughts and questions, write their stories, find family-friendly events, and form smaller groups by city or by interest. Nothing is public, and you can always share without your name.",
         },
         {
           title: "Who it is for",
-          body: "Parents, grandparents and caregivers of children and adults with any disability or developmental difference: autism, ADHD, Down syndrome, cerebral palsy, intellectual disability, learning differences, speech delays, hearing or vision impairment, and more. Diagnosis is not required.",
+          body: "Parents, grandparents and caregivers who are walking a harder road with their children and want company on the way. Every family is welcome as it is, and nobody has to explain or prove anything to join.",
         },
         {
           title: "Run by volunteers",
-          body: "Aranyam is run by parent volunteers. Moderators welcome new families, keep conversations kind, and protect everyone's privacy.",
+          body: "Aranyam Together is run by parent volunteers. Moderators welcome new families, keep conversations kind, and protect everyone's privacy.",
         },
       ],
     },
@@ -735,7 +734,7 @@ const en = {
     },
     guidelines: {
       title: "Community guidelines",
-      intro: "Aranyam works because families trust each other. These simple guidelines keep it that way.",
+      intro: "Aranyam Together works because families trust each other. These simple guidelines keep it that way.",
       sections: [
         {
           title: "Be kind, always",
@@ -743,7 +742,7 @@ const en = {
         },
         {
           title: "Protect children's privacy",
-          body: "Don't share children's full names, school names, photos or medical reports, including your own child's. Never share something another family told you outside Aranyam.",
+          body: "Don't share children's full names, school names, photos or medical reports, including your own child's. Never share something another family told you outside Aranyam Together.",
         },
         {
           title: "What is shared here stays here",
@@ -766,36 +765,80 @@ const en = {
         "Moderators may remove content or pause accounts that break these guidelines, to keep every family safe.",
     },
   },
+  slides: {
+    label: "Pictures and words of welcome",
+    previous: "Previous picture",
+    next: "Next picture",
+    pause: "Pause the slideshow",
+    play: "Play the slideshow",
+    goTo: "Show picture {number}",
+    position: "{number} of {total}",
+    landing: [
+      { title: "You don't have to walk this road alone", body: "Aranyam Together brings families facing the same kind of days side by side, to listen, share and lift each other up." },
+      { title: "Hope grows when we share it", body: "Small victories, honest questions and quiet worries, shared with people who truly understand." },
+      { title: "Meet, gather and grow together", body: "Find family days out, local groups and friendships that last." },
+    ],
+    about: [
+      { title: "A forest has room for every tree", body: "Each one grows in its own way and at its own pace. So do our children, and so do we." },
+      { title: "Built by parents, for families", body: "Volunteers who have walked the same road keep this place kind and safe." },
+      { title: "Looking ahead, together", body: "School, skills, independence and the years to come. We find the answers together." },
+    ],
+    feed: [
+      { title: "Welcome home", body: "Take a breath. Share what is on your mind, or simply read and listen." },
+      { title: "Every small step counts", body: "Celebrate the little wins. Someone here knows exactly what they mean." },
+      { title: "Ask anything", body: "There are no silly questions here. Someone has been where you are." },
+    ],
+    groups: [
+      { title: "Find your circle", body: "Families near you, or with days like yours, ready to listen." },
+      { title: "Stronger side by side", body: "Share local tips, schools and places that welcome every child." },
+      { title: "Bring your own circle together", body: "Start a private group for the families you know." },
+    ],
+    events: [
+      { title: "Days to look forward to", body: "Picnics, meetups and gentle outings planned with every family in mind." },
+      { title: "Calm and welcoming", body: "Quiet places, easy timings and people who understand." },
+      { title: "From home, too", body: "Join a talk or a chat online when going out is hard." },
+    ],
+    blogs: [
+      { title: "Your story matters", body: "Writing it down can lighten your heart and guide another family." },
+      { title: "Learn from those a few steps ahead", body: "Real journeys and honest lessons, shared with care." },
+      { title: "With your name, or without", body: "Write openly or anonymously. You decide." },
+    ],
+    news: [
+      { title: "Stay informed", body: "Support schemes, helpful resources and community announcements in one place." },
+      { title: "Help that is out there", body: "Learn about support and services that can make daily life easier." },
+      { title: "News from our community", body: "Celebrations, gatherings and good news from families like yours." },
+    ],
+  },
   email: {
     greeting: "Hello {name},",
-    signoff: "With care,\nThe Aranyam volunteers",
+    signoff: "With care,\nThe Aranyam Together volunteers",
     ignore: "If you didn't ask for this, you can safely ignore this email.",
     verify: {
       subject: "Confirm your email address",
-      body: "Please confirm your email address to continue joining Aranyam.",
+      body: "Please confirm your email address to continue joining Aranyam Together.",
       button: "Confirm my email",
       expiry: "This link works for 48 hours.",
     },
     reset: {
       subject: "Reset your password",
-      body: "We received a request to reset your Aranyam password.",
+      body: "We received a request to reset your Aranyam Together password.",
       button: "Choose a new password",
       expiry: "This link works for one hour and can be used once.",
     },
     existing: {
-      subject: "About your Aranyam account",
+      subject: "About your Aranyam Together account",
       body: "Someone tried to create a new account with this email address, but you already have one.",
       login: "Log in",
       reset: "Forgot your password? Reset it here",
     },
     approved: {
-      subject: "Welcome to Aranyam",
+      subject: "Welcome to Aranyam Together",
       body: "A moderator has welcomed you in. You can now see posts, join groups and share with other families.",
-      button: "Open Aranyam",
+      button: "Open Aranyam Together",
     },
     declined: {
       subject: "About your request to join",
-      body: "Thank you for your interest in Aranyam. We were not able to confirm your request this time, so the account has been removed. If you think this was a mistake, please reply to this email.",
+      body: "Thank you for your interest in Aranyam Together. We were not able to confirm your request this time, so the account has been removed. If you think this was a mistake, please reply to this email.",
     },
   },
 };

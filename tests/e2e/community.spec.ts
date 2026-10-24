@@ -63,8 +63,8 @@ test("organising an event", async ({ page }) => {
   await page.getByLabel("Ends at").fill("11:30");
   await page.getByLabel("City or area").fill("Velachery, Chennai");
   await page.getByLabel("Full address").fill("Community hall, 3rd floor, lift available");
-  await page.getByText("Sensory-friendly", { exact: true }).click();
-  await expect(page.getByRole("checkbox", { name: "Sensory-friendly" })).toBeChecked();
+  await page.getByText("Calm and quiet", { exact: true }).click();
+  await expect(page.getByRole("checkbox", { name: "Calm and quiet" })).toBeChecked();
   await page.getByRole("button", { name: "Save event" }).click();
 
   await expect(page.getByRole("heading", { name: title })).toBeVisible();

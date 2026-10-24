@@ -49,7 +49,7 @@ export function resolveAuthSecret(): string {
 
 function createAuth() {
   return betterAuth({
-    appName: "Aranyam",
+    appName: "Aranyam Together",
     baseURL: env.appUrl,
     secret: resolveAuthSecret(),
     database: drizzleAdapter(db, {

@@ -2,10 +2,10 @@ import {
   BookOpen,
   CalendarHeart,
   EyeOff,
-  Languages,
   MessageCircleHeart,
   Newspaper,
   ShieldCheck,
+  Sprout,
   UsersRound,
 } from "lucide-react";
 import type { Metadata } from "next";
@@ -13,6 +13,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import Image from "next/image";
+import { PageSlides } from "@/components/page-slides";
 import { ButtonLink } from "@/components/ui/button";
 import { getI18n } from "@/i18n/server";
 import { formatDate } from "@/i18n/format";
@@ -34,7 +35,7 @@ export default async function LandingPage() {
 
   const pillars = [
     { icon: ShieldCheck, title: l.privateTitle, body: l.privateBody },
-    { icon: Languages, title: l.bilingualTitle, body: l.bilingualBody },
+    { icon: Sprout, title: l.hopeTitle, body: l.hopeBody },
     { icon: UsersRound, title: l.togetherTitle, body: l.togetherBody },
   ];
   const features = [
@@ -48,52 +49,48 @@ export default async function LandingPage() {
 
   return (
     <>
-      <section className="overflow-hidden">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-10 pb-14 md:grid-cols-[1.1fr_1fr] md:pt-16 md:pb-20">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3.5 py-1.5 text-sm font-semibold text-accent">
-              {l.eyebrow}
-            </p>
-            <h1 className="mt-5 text-[2.1rem] leading-tight text-ink sm:text-5xl sm:leading-[1.15]">{l.title}</h1>
-            <p className="mt-5 max-w-xl text-lg text-muted">{l.body}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href={`/${locale}/register`} size="lg">
-                {l.ctaJoin}
-              </ButtonLink>
-              <ButtonLink href={`/${locale}/login`} size="lg" variant="secondary">
-                {l.ctaLogin}
-              </ButtonLink>
-            </div>
-            <p className="mt-6 flex max-w-xl items-start gap-2.5 text-[0.95rem] text-muted">
-              <EyeOff className="mt-1 size-4 shrink-0 text-primary" aria-hidden="true" />
-              {l.trust}
-            </p>
+      <div className="mx-auto w-full max-w-6xl px-4 pt-6 md:pt-10">
+        <PageSlides page="landing" variant="hero">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <ButtonLink href={`/${locale}/register`} size="lg">
+              {l.ctaJoin}
+            </ButtonLink>
+            <ButtonLink href={`/${locale}/login`} size="lg" variant="secondary">
+              {l.ctaLogin}
+            </ButtonLink>
           </div>
-          <div className="relative">
-            <div className="absolute inset-6 -z-10 rounded-[3rem] bg-primary-soft blur-2xl" aria-hidden="true" />
-            {/* The logo's colours are made for a light background, so it keeps one in dark mode too. */}
-            <div className="mx-auto max-w-lg rounded-[2.5rem] bg-[#fbf8f1] p-6 shadow-sm ring-1 ring-line sm:p-8">
-              <Image
-                src="/brand/aranyam-logo.webp"
-                alt={l.logoAlt}
-                width={1000}
-                height={661}
-                sizes="(min-width: 768px) 32rem, 100vw"
-                className="h-auto w-full"
-                priority
-              />
-            </div>
-          </div>
+        </PageSlides>
+      </div>
+
+      <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[0.9fr_1.1fr] md:py-20">
+        {/* The logo's colours are made for a light background, so it keeps one in dark mode too. */}
+        <div className="mx-auto w-full max-w-md rounded-[2.5rem] bg-[#fbf8f1] p-6 shadow-[0_18px_50px_-30px_rgba(36,48,44,0.45)] ring-1 ring-line sm:p-8">
+          <Image
+            src="/brand/aranyam-logo.webp"
+            alt={l.logoAlt}
+            width={1000}
+            height={661}
+            sizes="(min-width: 768px) 28rem, 100vw"
+            className="h-auto w-full"
+          />
+        </div>
+        <div>
+          <h1 className="text-[2rem] leading-tight text-ink sm:text-[2.6rem] sm:leading-[1.15]">{l.introTitle}</h1>
+          <p className="mt-5 max-w-xl text-lg text-muted">{l.body}</p>
+          <p className="mt-6 flex max-w-xl items-start gap-2.5 text-[0.95rem] text-muted">
+            <EyeOff className="mt-1 size-4 shrink-0 text-primary" aria-hidden="true" />
+            {l.trust}
+          </p>
         </div>
       </section>
 
-      <section className="border-y border-line bg-surface/70">
+      <section className="border-y border-line/70 bg-surface/60">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h2 className="text-center text-2xl text-ink sm:text-3xl">{l.pillarsTitle}</h2>
           <ul className="mt-10 grid gap-5 md:grid-cols-3">
             {pillars.map(({ icon: Icon, title, body }) => (
-              <li key={title} className="rounded-2xl border border-line bg-canvas p-6">
-                <span className="flex size-12 items-center justify-center rounded-2xl bg-primary-soft text-primary">
+              <li key={title} className="rounded-3xl border border-line/70 bg-canvas p-7">
+                <span className="flex size-12 items-center justify-center rounded-full bg-primary-soft text-primary">
                   <Icon className="size-6" aria-hidden="true" />
                 </span>
                 <h3 className="mt-4 text-xl text-ink">{title}</h3>
@@ -136,7 +133,7 @@ export default async function LandingPage() {
       </Suspense>
 
       <section className="mx-auto w-full max-w-6xl px-4 pb-6">
-        <div className="rounded-[2rem] bg-primary px-6 py-12 text-center text-on-primary sm:px-12">
+        <div className="rounded-[2rem] bg-[linear-gradient(135deg,var(--primary),var(--primary-strong))] px-6 py-14 text-center text-on-primary sm:px-12">
           <h2 className="text-2xl sm:text-3xl">{l.closingTitle}</h2>
           <p className="mx-auto mt-3 max-w-xl text-lg opacity-90">{l.closingBody}</p>
           <ButtonLink

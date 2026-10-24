@@ -57,7 +57,7 @@ export const env = {
     return smtpUrlWithPassword(process.env.SMTP_URL ?? "", process.env.SMTP_PASSWORD ?? "");
   },
   get emailFrom() {
-    return process.env.EMAIL_FROM || "Aranyam <no-reply@localhost>";
+    return process.env.EMAIL_FROM || "Aranyam Together <no-reply@localhost>";
   },
   get emailTransport(): EmailTransport {
     const configured = process.env.EMAIL_TRANSPORT?.trim().toLowerCase();

@@ -6,6 +6,7 @@ import { Chips } from "@/components/community/basics";
 import { PostCard } from "@/components/community/cards";
 import { Composer } from "@/components/community/interactive";
 import { FeedSidebar, SidebarSkeleton } from "@/components/community/sidebar";
+import { PageSlides } from "@/components/page-slides";
 import { ButtonLink } from "@/components/ui/button";
 import { Card, CardSection } from "@/components/ui/card";
 import { EmptyState, ListSkeleton, Skeleton } from "@/components/ui/misc";
@@ -25,16 +26,19 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function FeedPage({ searchParams }: PageProps<"/[lang]/feed">) {
   const { t } = await getI18n();
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <Suspense fallback={<FeedSkeleton />}>
-        <Feed searchParams={searchParams} />
-      </Suspense>
-      <aside aria-label={t.sidebar.label} className="hidden lg:block">
-        <Suspense fallback={<SidebarSkeleton />}>
-          <Sidebar />
+    <>
+      <PageSlides page="feed" className="mb-8" />
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <Suspense fallback={<FeedSkeleton />}>
+          <Feed searchParams={searchParams} />
         </Suspense>
-      </aside>
-    </div>
+        <aside aria-label={t.sidebar.label} className="hidden lg:block">
+          <Suspense fallback={<SidebarSkeleton />}>
+            <Sidebar />
+          </Suspense>
+        </aside>
+      </div>
+    </>
   );
 }
 
