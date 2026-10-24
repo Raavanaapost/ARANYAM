@@ -22,6 +22,15 @@ test("switching language keeps the same page and is remembered", async ({ page }
   await expect(page).toHaveURL(/\/ta\/privacy$/);
 });
 
+test("the language button works even before the page has finished loading", async ({ page, baseURL }) => {
+  // Until the page knows its address, the button points at /ta/language.
+  await page.goto("/ta/language", { referer: `${baseURL}/en/guidelines` });
+  await expect(page).toHaveURL(/\/ta\/guidelines$/);
+  // A link from another site never decides where people end up.
+  await page.goto("/en/language", { referer: "https://example.com/en/privacy" });
+  await expect(page).toHaveURL(/\/en$/);
+});
+
 test("members can use the whole site in Tamil", async ({ page }) => {
   await logIn(page, people.lakshmi);
   await page.goto("/ta/feed");

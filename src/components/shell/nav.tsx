@@ -118,11 +118,12 @@ export function LanguageSwitcher() {
   );
 }
 
+/** Shown before the page knows its address; the server then keeps the visitor on the same page. */
 export function LanguageSwitcherFallback() {
   const { locale } = useI18n();
   const other = locale === "en" ? "ta" : "en";
   return (
-    <Link href={`/${other}`} prefetch={false} hrefLang={other} lang={other} className={switcherClass}>
+    <Link href={`/${other}/language`} prefetch={false} hrefLang={other} lang={other} className={switcherClass}>
       <Languages className="hidden size-4 sm:block" aria-hidden="true" />
       {other === "ta" ? "தமிழ்" : "English"}
     </Link>

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { LOCALE_COOKIE, defaultLocale, isLocale, matchAcceptLanguage } from "@/i18n/config";
+import { LOCALE_COOKIE, defaultLocale, isLocale, matchAcceptLanguage, switchLocaleInPath, type Locale } from "@/i18n/config";
 import { SESSION_COOKIE_NAMES, SESSION_DURATION_MS } from "@/lib/auth/constants";
 
 /**
@@ -38,6 +38,30 @@ function sessionCookie(request: NextRequest) {
   return null;
 }
 
+/**
+ * The language button links to /<language>/language until the page has loaded
+ * and knows its own address. This sends the visitor to the page they were on
+ * (from the same-site Referer), in the language they picked.
+ */
+function switchLanguage(request: NextRequest, locale: Locale) {
+  const url = request.nextUrl.clone();
+  url.search = "";
+  url.pathname = `/${locale}`;
+  const referer = request.headers.get("referer");
+  if (referer) {
+    try {
+      const from = new URL(referer);
+      if (from.origin === request.nextUrl.origin && from.pathname.startsWith("/") && !from.pathname.startsWith("//")) {
+        url.pathname = switchLocaleInPath(from.pathname, locale);
+        url.search = from.search;
+      }
+    } catch {
+      // A malformed Referer just goes to the home page.
+    }
+  }
+  return NextResponse.redirect(url);
+}
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const segments = pathname.split("/");
@@ -54,6 +78,8 @@ export function proxy(request: NextRequest) {
   const locale = segments[1];
   const path = `/${segments.slice(2).join("/")}`.replace(/\/+$/, "") || "/";
   const session = sessionCookie(request);
+
+  if (isRead && path === "/language") return switchLanguage(request, locale);
 
   if (isRead && !session && !isPublicPath(path)) {
     const url = request.nextUrl.clone();
