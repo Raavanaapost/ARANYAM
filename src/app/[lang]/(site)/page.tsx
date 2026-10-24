@@ -12,7 +12,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { GroveIllustration } from "@/components/illustrations";
+import Image from "next/image";
 import { ButtonLink } from "@/components/ui/button";
 import { getI18n } from "@/i18n/server";
 import { formatDate } from "@/i18n/format";
@@ -71,7 +71,18 @@ export default async function LandingPage() {
           </div>
           <div className="relative">
             <div className="absolute inset-6 -z-10 rounded-[3rem] bg-primary-soft blur-2xl" aria-hidden="true" />
-            <GroveIllustration className="mx-auto max-w-lg" />
+            {/* The logo's colours are made for a light background, so it keeps one in dark mode too. */}
+            <div className="mx-auto max-w-lg rounded-[2.5rem] bg-[#fbf8f1] p-6 shadow-sm ring-1 ring-line sm:p-8">
+              <Image
+                src="/brand/aranyam-logo.webp"
+                alt={l.logoAlt}
+                width={1000}
+                height={661}
+                sizes="(min-width: 768px) 32rem, 100vw"
+                className="h-auto w-full"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>

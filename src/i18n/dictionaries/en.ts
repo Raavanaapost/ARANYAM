@@ -78,6 +78,7 @@ const en = {
     accountMenu: "Account menu",
   },
   landing: {
+    logoAlt: "Aranyam Together logo: families, support, belonging",
     eyebrow: "For Tamil families raising children with special needs",
     title: "A safe grove where our families grow together",
     body: "Aranyam is a private, members-only community. Share your journey, ask questions, find family events and friends who truly understand, in Tamil or English, without having to go public.",

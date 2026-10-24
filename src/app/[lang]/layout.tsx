@@ -19,7 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: t.meta.siteName, template: `%s · ${t.meta.siteName}` },
     description: t.meta.description,
     applicationName: "Aranyam",
-    icons: { icon: "/icon.svg" },
+    icons: {
+      icon: [
+        { url: "/brand/icon-64.png", sizes: "64x64", type: "image/png" },
+        { url: "/brand/icon-192.png", sizes: "192x192", type: "image/png" },
+      ],
+      apple: "/apple-icon.png",
+    },
     // Pages are private unless a public page says otherwise.
     robots: { index: false, follow: false },
     referrer: "same-origin",
