@@ -25,6 +25,12 @@ const serverEnv = {
   TRUST_PROXY: "false",
   // Signs session cookies in this test server only.
   BETTER_AUTH_SECRET: "e2e-only-secret-6f1c0b9a4e2d47c8a3b5f7e9d1c2b4a6",
+  // Google is set up with made-up keys and Facebook is left out, to check that
+  // only configured providers are offered. Tests stop at Google's door.
+  GOOGLE_CLIENT_ID: "e2e-google-app",
+  GOOGLE_CLIENT_SECRET: "e2e-google-secret",
+  FACEBOOK_CLIENT_ID: "",
+  FACEBOOK_CLIENT_SECRET: "",
 };
 
 const prepare = "npm run db:migrate && npm run db:seed -- --reset";

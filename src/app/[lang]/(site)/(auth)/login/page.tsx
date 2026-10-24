@@ -5,9 +5,12 @@ import { Suspense } from "react";
 import { AuthCard, AuthFormSkeleton } from "@/components/auth/auth-card";
 import { LoginForm } from "@/components/auth/forms";
 import { Alert } from "@/components/ui/alert";
+import { format } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
 import { getViewer } from "@/lib/auth/dal";
+import { env } from "@/lib/env";
 import { firstParam, safeNextPath } from "@/lib/params";
+import { socialError } from "@/lib/social-errors";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getI18n();
@@ -43,8 +46,15 @@ async function LoginContent({ searchParams }: Pick<PageProps<"/[lang]/login">, "
 
   if (await getViewer()) redirect(`/${locale}${next ?? "/feed"}`);
 
+  const social = socialError(firstParam(params.social), firstParam(params.error));
   let notice = null;
-  if (firstParam(params.verified)) {
+  if (social) {
+    notice = (
+      <Alert tone={social.key === "cancelled" ? "info" : "warning"}>
+        {format(t.auth.social[social.key], { provider: social.provider })}
+      </Alert>
+    );
+  } else if (firstParam(params.verified)) {
     notice = <Alert tone="success">{t.auth.login.verifiedNotice}</Alert>;
   } else if (firstParam(params.verify) === "invalid") {
     notice = (
@@ -63,7 +73,7 @@ async function LoginContent({ searchParams }: Pick<PageProps<"/[lang]/login">, "
   return (
     <>
       {notice ? <div className="mb-5">{notice}</div> : null}
-      <LoginForm next={next} />
+      <LoginForm next={next} socialProviders={env.socialProviders} />
     </>
   );
 }

@@ -154,6 +154,19 @@ const en = {
         "We sent a confirmation link to {email}. Open it to continue. It can take a few minutes, so please also check your spam folder.",
       checkEmailNext: "After confirming, log in to see the status of your request.",
     },
+    social: {
+      or: "or",
+      google: "Continue with Google",
+      facebook: "Continue with Facebook",
+      joinHint:
+        "With Google or Facebook, please tick the agreement above first. We keep only your email address and first name, never your photo, and you can change your name later.",
+      noAccount: "There is no account for that {provider} email address yet. Please request to join first.",
+      notLinked:
+        "This email address already has an account. Please log in with your password. You can use {provider} once your email address is confirmed.",
+      noEmail: "{provider} did not share an email address with us. Please join with your email address instead.",
+      cancelled: "Signing in with {provider} was cancelled.",
+      failed: "Signing in with {provider} did not work. Please try again, or use your email address.",
+    },
     errors: {
       required: "Please fill in this field.",
       invalidEmail: "Please enter a valid email address.",
@@ -722,6 +735,10 @@ const en = {
         {
           title: "We collect very little",
           body: "Your email address, your password (stored scrambled so even we cannot read it), your profile, and what you choose to share. We do not use advertising, analytics trackers or third-party scripts.",
+        },
+        {
+          title: "Joining with Google or Facebook",
+          body: "If you choose Google or Facebook, we receive only your email address and first name from them, and we keep nothing else: not your photo, your friends or your posts, and no access to your Google or Facebook account. Nothing is ever posted there. Deleting your Aranyam Together account in Settings removes this too.",
         },
         {
           title: "You are in control",

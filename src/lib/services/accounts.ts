@@ -1,7 +1,7 @@
-import { APIError } from "better-auth/api";
+import { APIError, getOAuthState } from "better-auth/api";
 import { and, asc, eq, gt, inArray, isNull, lt, ne, notInArray, sql } from "drizzle-orm";
 import { decodeJwt } from "jose";
-import type { Locale } from "@/i18n/config";
+import { isLocale, type Locale } from "@/i18n/config";
 import { db } from "@/lib/db";
 import { groupMembers, groups, invites, sessions, users, verifications, type User, type UserRole } from "@/lib/db/schema";
 import { env } from "@/lib/env";
@@ -132,6 +132,41 @@ export async function claimInviteForNewAccount<T extends Record<string, unknown>
     )
     .returning({ id: invites.id, createdById: invites.createdById });
   return used ? { ...data, inviteId: used.id, invitedById: used.createdById } : data;
+}
+
+/**
+ * What the "Request to join" page passed along when a family joins with Google
+ * or Facebook: their language, their note for the moderators and the invite.
+ * Better Auth keeps it with the sign-in and hands it back when the family
+ * returns. Empty for every other kind of sign-up.
+ */
+export async function socialSignUpDetails(): Promise<{ locale?: Locale; joinNote?: string; inviteId?: string; image: null } | Record<string, never>> {
+  const state = (await getOAuthState()) as Record<string, unknown> | null;
+  if (!state) return {};
+  return {
+    image: null,
+    ...(isLocale(state.locale) ? { locale: state.locale } : {}),
+    ...(typeof state.joinNote === "string" ? { joinNote: state.joinNote.slice(0, 1000) } : {}),
+    ...(typeof state.inviteId === "string" ? { inviteId: state.inviteId } : {}),
+  };
+}
+
+/**
+ * Runs once an account exists. Accounts made with an email and password are
+ * never confirmed yet; Google vouches for its own addresses, so those families
+ * are treated as if they had used our confirmation link.
+ */
+export async function afterAccountCreated(user: { id: string; emailVerified: boolean }) {
+  if (user.emailVerified) await afterEmailConfirmed(user.id);
+}
+
+/** Drops Google and Facebook access keys before an account row is written. */
+export function withoutProviderTokens<T extends Record<string, unknown>>(account: T): T {
+  const copy: Record<string, unknown> = { ...account };
+  for (const key of ["accessToken", "refreshToken", "idToken"]) {
+    if (key in copy) copy[key] = null;
+  }
+  return copy as T;
 }
 
 /** Called by Better Auth with a new confirmation token. */

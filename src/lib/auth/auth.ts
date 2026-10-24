@@ -13,12 +13,15 @@ import { hashPassword, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, verifyPassword 
 // Imported both ways round on purpose: accounts.ts calls getAuth(), and these
 // functions are only called once a request is being handled.
 import {
+  afterAccountCreated,
   afterEmailConfirmed,
   afterPasswordReset,
   claimInviteForNewAccount,
+  socialSignUpDetails,
   sendExistingAccountNotice,
   sendResetEmail,
   sendVerificationLink,
+  withoutProviderTokens,
 } from "@/lib/services/accounts";
 
 const DAY_SECONDS = 24 * 60 * 60;
@@ -47,6 +50,46 @@ export function resolveAuthSecret(): string {
   return createHmac("sha256", "aranyam-auth-secret-v1").update(databaseUrl).digest("base64url");
 }
 
+/** Google keeps only the first name for the community, never the profile photo. */
+type NamedProfile = { name?: string; given_name?: string; first_name?: string };
+
+function firstName(profile: NamedProfile): string {
+  const name = (profile.given_name || profile.first_name || profile.name || "").trim();
+  return name.slice(0, 50);
+}
+
+/**
+ * Google and Facebook, for the ones this site has keys for. Neither can create
+ * an account by itself: only the "Request to join" page asks for that, after
+ * the family has agreed to the guidelines.
+ */
+function socialProviders() {
+  const google = env.google;
+  const facebook = env.facebook;
+  return {
+    ...(google
+      ? {
+          google: {
+            ...google,
+            disableImplicitSignUp: true,
+            prompt: "select_account" as const,
+            mapProfileToUser: (profile: NamedProfile) => ({ name: firstName(profile), image: undefined }),
+          },
+        }
+      : {}),
+    ...(facebook
+      ? {
+          facebook: {
+            ...facebook,
+            disableImplicitSignUp: true,
+            fields: ["first_name"],
+            mapProfileToUser: (profile: NamedProfile) => ({ name: firstName(profile), image: undefined }),
+          },
+        }
+      : {}),
+  };
+}
+
 function createAuth() {
   return betterAuth({
     appName: "Aranyam Together",
@@ -57,9 +100,10 @@ function createAuth() {
       schema: { users, sessions, accounts, verifications },
     }),
     // Better Auth is only used from the server (Server Actions, pages and the
-    // logout and email-link routes). Its HTTP API is not mounted, so sign-up and
-    // sign-in always go through our own checks: rate limits, invites, the
-    // community agreement and password rules.
+    // logout and email-link routes). Of its HTTP API only the Google and
+    // Facebook return address is mounted (src/app/api/auth/callback), so
+    // sign-up and sign-in always start from our own checks: rate limits,
+    // invites, the community agreement and password rules.
     telemetry: { enabled: false },
     rateLimit: { enabled: false },
     user: {
@@ -84,7 +128,15 @@ function createAuth() {
       // signing out other devices takes effect on the very next page.
       cookieCache: { enabled: false },
     },
-    account: { modelName: "accounts" },
+    account: {
+      modelName: "accounts",
+      // A Google or Facebook login joins an existing account only when both
+      // sides have confirmed the same email address (Better Auth's default).
+      accountLinking: { enabled: true, requireLocalEmailVerified: true, updateUserInfoOnLink: false },
+    },
+    socialProviders: socialProviders(),
+    // Errors from Google or Facebook come back to our own login page.
+    onAPIError: { errorURL: "/en/login" },
     verification: { modelName: "verifications", storeIdentifier: "hashed" },
     emailAndPassword: {
       enabled: true,
@@ -120,8 +172,15 @@ function createAuth() {
     databaseHooks: {
       user: {
         create: {
-          before: async (user) => ({ data: await claimInviteForNewAccount(user) }),
+          before: async (user) => ({ data: await claimInviteForNewAccount({ ...user, ...(await socialSignUpDetails()) }) }),
+          after: async (user) => afterAccountCreated(user),
         },
+      },
+      account: {
+        // Aranyam never acts on a family's Google or Facebook account, so their
+        // access keys are not kept.
+        create: { before: async (account) => ({ data: withoutProviderTokens(account) }) },
+        update: { before: async (account) => ({ data: withoutProviderTokens(account) }) },
       },
       session: {
         create: {

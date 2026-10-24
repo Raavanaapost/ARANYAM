@@ -1,3 +1,5 @@
+import { SOCIAL_PROVIDERS, type SocialProvider } from "@/lib/constants";
+
 /**
  * Runtime configuration, read from environment variables on each access so
  * that a build can be configured differently per deployment.
@@ -28,6 +30,13 @@ export function smtpUrlWithPassword(smtpUrl: string, password: string): string {
 }
 
 export type EmailTransport = "smtp" | "dev" | "log";
+
+/** The app id and secret for one outside sign-in provider, or null when it is not set up. */
+function oauthClient(prefix: string): { clientId: string; clientSecret: string } | null {
+  const clientId = process.env[`${prefix}_CLIENT_ID`]?.trim();
+  const clientSecret = process.env[`${prefix}_CLIENT_SECRET`]?.trim();
+  return clientId && clientSecret ? { clientId, clientSecret } : null;
+}
 
 export const env = {
   get isProduction() {
@@ -79,6 +88,18 @@ export const env = {
   /** Running on Netlify, which provides the database and the visitor's address. */
   get isNetlify() {
     return Boolean(process.env.NETLIFY_DB_URL) || process.env.NETLIFY === "true";
+  },
+  /** "Continue with Google", shown once GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set. */
+  get google() {
+    return oauthClient("GOOGLE");
+  },
+  /** "Continue with Facebook", shown once FACEBOOK_CLIENT_ID and FACEBOOK_CLIENT_SECRET are set. */
+  get facebook() {
+    return oauthClient("FACEBOOK");
+  },
+  /** The outside sign-in providers this site is set up for, in the order the buttons show. */
+  get socialProviders(): SocialProvider[] {
+    return SOCIAL_PROVIDERS.filter((provider) => this[provider] !== null);
   },
   /** Trust X-Forwarded-For for rate limiting (true behind a reverse proxy). */
   get trustProxy() {

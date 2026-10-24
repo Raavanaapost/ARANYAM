@@ -39,13 +39,13 @@ npm run dev
 
 Open http://localhost:3000. Every demo account uses the password `aranyam-demo-2026`:
 
-| Email                   | Who                                     |
-| ----------------------- | --------------------------------------- |
-| `meena@aranyam.local`   | Admin                                   |
-| `karthik@aranyam.local` | Moderator                               |
-| `priya@aranyam.local`   | Member who runs a group and an event    |
-| `lakshmi@aranyam.local` | Member who uses Aranyam in Tamil        |
-| `divya@aranyam.local`   | New family waiting for a moderator      |
+| Email                   | Who                                  |
+| ----------------------- | ------------------------------------ |
+| `meena@aranyam.local`   | Admin                                |
+| `karthik@aranyam.local` | Moderator                            |
+| `priya@aranyam.local`   | Member who runs a group and an event |
+| `lakshmi@aranyam.local` | Member who uses Aranyam in Tamil     |
+| `divya@aranyam.local`   | New family waiting for a moderator   |
 
 During development no email is sent. Read them at http://localhost:3000/en/dev/mailbox instead.
 
@@ -70,18 +70,29 @@ The demo accounts share a published password, so never add them to a real commun
 3. Register on the site and confirm your email, then make yourself the first admin with `npm run admin:promote -- you@example.com`. You can also list your email in `ADMIN_EMAILS` before you register.
 4. Serve the site over HTTPS, through a hosting platform, Caddy or nginx.
 
-| Setting                                     | What it does                                                                      |
-| ------------------------------------------- | --------------------------------------------------------------------------------- |
-| `APP_URL`                                   | The public address, used for links in emails                                      |
-| `DATABASE_URL`                              | PostgreSQL connection string                                                      |
-| `BETTER_AUTH_SECRET`                        | Signs login cookies and email links. Make one with `openssl rand -base64 32`      |
-| `SMTP_URL`, `SMTP_PASSWORD`, `EMAIL_FROM`   | How to send email, through any SMTP provider. `SMTP_PASSWORD` is optional         |
-| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`        | Keeps forms working across restarts. Make one with `openssl rand -base64 32`      |
-| `TRUST_PROXY`                               | `true` behind a proxy or hosting platform, so rate limits see real addresses      |
-| `REQUIRE_APPROVAL`, `INVITES_SKIP_APPROVAL` | Whether moderators welcome new families in, and whether invite links skip that   |
-| `APP_TIMEZONE`                              | Time zone for events, `Asia/Kolkata` by default                                   |
+| Setting                                        | What it does                                                                   |
+| ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| `APP_URL`                                      | The public address, used for links in emails                                   |
+| `DATABASE_URL`                                 | PostgreSQL connection string                                                   |
+| `BETTER_AUTH_SECRET`                           | Signs login cookies and email links. Make one with `openssl rand -base64 32`   |
+| `SMTP_URL`, `SMTP_PASSWORD`, `EMAIL_FROM`      | How to send email, through any SMTP provider. `SMTP_PASSWORD` is optional      |
+| `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`           | Keeps forms working across restarts. Make one with `openssl rand -base64 32`   |
+| `TRUST_PROXY`                                  | `true` behind a proxy or hosting platform, so rate limits see real addresses   |
+| `REQUIRE_APPROVAL`, `INVITES_SKIP_APPROVAL`    | Whether moderators welcome new families in, and whether invite links skip that |
+| `APP_TIMEZONE`                                 | Time zone for events, `Asia/Kolkata` by default                                |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`     | Optional. Shows "Continue with Google" on the login and join pages             |
+| `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET` | Optional. Shows "Continue with Facebook" on the login and join pages           |
 
 `.env.example` explains every setting.
+
+### Google and Facebook sign-in
+
+Each button appears only once both of its settings are filled in.
+
+- **Google:** in Google Cloud Console, open APIs & Services > OAuth consent screen and set it up as External with the app name, a support email and the privacy page (`<APP_URL>/en/privacy`). Then under Credentials, create an OAuth client ID of type Web application with the authorized redirect URI `<APP_URL>/api/auth/callback/google`, and copy its client ID and secret.
+- **Facebook:** at developers.facebook.com, create an app with the "Authenticate and request data from users with Facebook Login" use case. Add `<APP_URL>/api/auth/callback/facebook` to Valid OAuth Redirect URIs, set the privacy policy URL to `<APP_URL>/en/privacy` and the data deletion instructions URL to the same page, make sure the `email` permission is on, and switch the app to Live. The App ID and App Secret are under App settings > Basic.
+
+Families who join this way still wait for a moderator (unless they have an invite), and the login page never creates accounts. Only the email address and first name are kept; photos and access keys are not stored. An existing account is used by Google or Facebook only when its email address was confirmed.
 
 ### On Netlify
 

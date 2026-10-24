@@ -47,8 +47,11 @@ export const REPORT_REASONS = [
   "other",
 ] as const;
 export const REPORT_STATUSES = ["open", "resolved", "dismissed"] as const;
+/** Outside accounts families can join and log in with, when the site is set up for them. */
+export const SOCIAL_PROVIDERS = ["google", "facebook"] as const;
 
 export type UserRole = (typeof USER_ROLES)[number];
+export type SocialProvider = (typeof SOCIAL_PROVIDERS)[number];
 export type UserStatus = (typeof USER_STATUSES)[number];
 export type GroupPrivacy = (typeof GROUP_PRIVACY)[number];
 export type GroupRole = (typeof GROUP_ROLES)[number];

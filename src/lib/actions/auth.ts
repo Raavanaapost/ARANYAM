@@ -4,14 +4,18 @@ import { APIError } from "better-auth/api";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
+import type { Locale } from "@/i18n/config";
 import { authInternals, getAuth } from "@/lib/auth/auth";
 import { clearSessionCookie, getRequestMeta } from "@/lib/auth/cookies";
 import { getViewer } from "@/lib/auth/dal";
 import { safeNextPath } from "@/lib/params";
 import { checkPasswordStrength, PASSWORD_MAX_LENGTH } from "@/lib/auth/password";
 import { hitRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/auth/rate-limit";
+import { SOCIAL_PROVIDERS, type SocialProvider } from "@/lib/constants";
+import { env } from "@/lib/env";
 import type { FormState } from "@/lib/form-state";
 import {
+  findUsableInvite,
   findUserById,
   findUserByResetToken,
   normalizeEmail,
@@ -22,8 +26,52 @@ import {
 } from "@/lib/services/accounts";
 import { actionLocale, checked, invalid, isEmail, passwordMessage, rawText, text } from "./helpers";
 
+/** The Google or Facebook button that submitted the form, if it is set up on this site. */
+function chosenProvider(formData: FormData): SocialProvider | null {
+  const value = formData.get("provider");
+  const provider = SOCIAL_PROVIDERS.find((candidate) => candidate === value);
+  return provider && env.socialProviders.includes(provider) ? provider : null;
+}
+
+/**
+ * Sends the family to Google or Facebook. They come back to
+ * /api/auth/callback/<provider>, which signs them in and continues at
+ * /<language>/signed-in. Only the join page may create an account.
+ */
+async function startSocialSignIn(
+  provider: SocialProvider,
+  options: { locale: Locale; page: "login" | "register"; next?: string | null; joinNote?: string; inviteCode?: string },
+): Promise<never> {
+  const { locale, page, next } = options;
+  const signUp = page === "register";
+  const invite = signUp && options.inviteCode ? await findUsableInvite(options.inviteCode) : null;
+  const back = new URLSearchParams({ social: provider });
+  if (options.inviteCode) back.set("invite", options.inviteCode);
+  const result = await getAuth().api.signInSocial({
+    body: {
+      provider,
+      callbackURL: `/${locale}/signed-in${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+      errorCallbackURL: `/${locale}/${page}?${back.toString()}`,
+      requestSignUp: signUp,
+      disableRedirect: true,
+      additionalData: signUp
+        ? { locale, joinNote: options.joinNote ?? "", ...(invite ? { inviteId: invite.invite.id } : {}) }
+        : { locale },
+    },
+    headers: await headers(),
+  });
+  if (!result.url) throw new Error(`No sign-in address from ${provider}`);
+  redirect(result.url);
+}
+
 export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const { locale, t } = actionLocale(formData);
+  const provider = chosenProvider(formData);
+  if (provider) {
+    const { ip } = await getRequestMeta();
+    if (!(await hitRateLimit(RATE_LIMITS.loginPerIp, ip)).allowed) return { status: "error", message: t.common.rateLimited };
+    return startSocialSignIn(provider, { locale, page: "login", next: safeNextPath(text(formData, "next", 500)) });
+  }
   const email = normalizeEmail(text(formData, "email", 254));
   const password = rawText(formData, "password");
   const next = safeNextPath(text(formData, "next", 500));
@@ -86,6 +134,24 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
   const joinNote = text(formData, "joinNote", 5000);
   const inviteCode = text(formData, "invite", 40);
   const values = { displayName, email, joinNote, agree: checked(formData, "agree") ? "on" : "" };
+
+  // Joining with Google or Facebook: they provide the name and email address.
+  const provider = chosenProvider(formData);
+  if (provider) {
+    const socialErrors = invalid(
+      {
+        joinNote: joinNote.length > 1000 ? t.auth.errors.noteTooLong : undefined,
+        agree: values.agree ? undefined : t.auth.errors.mustAgree,
+      },
+      values,
+    );
+    if (socialErrors) return socialErrors;
+    const { ip } = await getRequestMeta();
+    if (!(await hitRateLimit(RATE_LIMITS.registerPerIp, ip)).allowed) {
+      return { status: "error", message: t.common.rateLimited, values };
+    }
+    return startSocialSignIn(provider, { locale, page: "register", joinNote, inviteCode: inviteCode || undefined });
+  }
 
   const passwordIssue = checkPasswordStrength(password, email);
   const errors = invalid(

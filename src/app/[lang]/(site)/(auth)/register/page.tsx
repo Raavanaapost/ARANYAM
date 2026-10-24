@@ -11,6 +11,7 @@ import { getI18n } from "@/i18n/server";
 import { getViewer } from "@/lib/auth/dal";
 import { env } from "@/lib/env";
 import { findUsableInvite } from "@/lib/services/accounts";
+import { socialError } from "@/lib/social-errors";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getI18n();
@@ -46,9 +47,15 @@ async function RegisterContent({ searchParams }: Pick<PageProps<"/[lang]/registe
 
   const code = firstParam(params.invite)?.trim().toLowerCase();
   const invite = code ? await findUsableInvite(code) : null;
+  const social = socialError(firstParam(params.social), firstParam(params.error));
 
   return (
     <>
+      {social ? (
+        <Alert tone={social.key === "cancelled" ? "info" : "warning"} className="mb-6">
+          {format(t.auth.social[social.key], { provider: social.provider })}
+        </Alert>
+      ) : null}
       {invite ? (
         <div className="mb-6 flex gap-3 rounded-2xl bg-primary-soft px-4 py-3.5 text-primary">
           <HeartHandshake className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
@@ -62,7 +69,7 @@ async function RegisterContent({ searchParams }: Pick<PageProps<"/[lang]/registe
           {t.auth.register.inviteInvalid}
         </Alert>
       ) : null}
-      <RegisterForm invite={invite ? invite.invite.code : null} />
+      <RegisterForm invite={invite ? invite.invite.code : null} socialProviders={env.socialProviders} />
     </>
   );
 }

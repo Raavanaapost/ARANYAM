@@ -12,7 +12,8 @@ const contentSecurityPolicy = [
   "font-src 'self'",
   `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
   "frame-ancestors 'none'",
-  "form-action 'self'",
+  // The join and login forms hand over to Google or Facebook when a family picks them.
+  "form-action 'self' https://accounts.google.com https://www.facebook.com https://m.facebook.com",
   "base-uri 'self'",
   "object-src 'none'",
 ].join("; ");
