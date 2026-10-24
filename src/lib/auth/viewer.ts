@@ -28,7 +28,7 @@ export function viewerFromUser(user: User, sessionId: string): Viewer {
     displayName: user.displayName,
     role: user.role,
     status: user.status,
-    emailVerified: user.emailVerifiedAt !== null,
+    emailVerified: user.emailVerified,
     locale: isLocale(user.locale) ? user.locale : "en",
     avatarHue: user.avatarHue,
     bio: user.bio,

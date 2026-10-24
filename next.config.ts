@@ -28,6 +28,8 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  // Browsers only ever use HTTPS for the site once they have seen it over HTTPS.
+  ...(isDev ? [] : [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }]),
 ];
 
 // Only the public introduction pages may be indexed by search engines.

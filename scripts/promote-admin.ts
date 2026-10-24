@@ -22,7 +22,7 @@ await runMigrations(context);
 const now = new Date();
 const [user] = await context.db
   .update(users)
-  .set({ role: "admin", status: "approved", emailVerifiedAt: now, approvedAt: now, updatedAt: now })
+  .set({ role: "admin", status: "approved", emailVerified: true, approvedAt: now, updatedAt: now })
   .where(eq(users.email, normalizeEmail(email)))
   .returning({ id: users.id, displayName: users.displayName });
 

@@ -1,50 +1,24 @@
 import { cookies, headers } from "next/headers";
 import { env } from "@/lib/env";
-import { SESSION_COOKIE } from "./constants";
+import { SESSION_COOKIE_NAMES } from "./constants";
 
-/**
- * Secure cookies are only stored by browsers over HTTPS. Deciding per request
- * (instead of "always in production") keeps login working when the app is
- * served over plain HTTP, such as `npm start` on a laptop or a LAN address.
- */
-async function isHttpsRequest(): Promise<boolean> {
-  const h = await headers();
-  const forwarded = h.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  if (forwarded) return forwarded === "https";
-  return env.appUrl.startsWith("https://");
-}
-
-/** Call from a Server Action or Route Handler after creating a session. */
-export async function setSessionCookie(token: string, expiresAt: Date) {
-  const store = await cookies();
-  store.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: await isHttpsRequest(),
-    path: "/",
-    expires: expiresAt,
-  });
-}
-
-export async function readSessionCookie(): Promise<string | undefined> {
-  return (await cookies()).get(SESSION_COOKIE)?.value;
-}
-
+/** Removes the session cookie, e.g. after the account was deleted. */
 export async function clearSessionCookie() {
   const store = await cookies();
-  store.set(SESSION_COOKIE, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: await isHttpsRequest(),
-    path: "/",
-    maxAge: 0,
-  });
+  for (const name of SESSION_COOKIE_NAMES) {
+    if (store.has(name)) store.delete(name);
+  }
 }
 
-/** Best-effort client details for rate limiting and the "where you're logged in" list. */
+/**
+ * Best-effort client details for rate limiting. On Netlify the visitor's
+ * address comes from Netlify's own header, which visitors cannot fake; the
+ * first X-Forwarded-For entry can be typed in by anyone.
+ */
 export async function getRequestMeta() {
   const h = await headers();
+  const netlifyIp = env.isNetlify ? h.get("x-nf-client-connection-ip")?.trim() : null;
   const forwardedFor = env.trustProxy ? h.get("x-forwarded-for")?.split(",")[0]?.trim() : null;
-  const ip = forwardedFor || h.get("x-real-ip") || "unknown";
+  const ip = netlifyIp || forwardedFor || h.get("x-real-ip") || "unknown";
   return { ip, userAgent: h.get("user-agent") ?? "" };
 }

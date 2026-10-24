@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { defaultLocale, isLocale } from "@/i18n/config";
-import { SESSION_COOKIE } from "@/lib/auth/constants";
-import { validateSessionToken } from "@/lib/auth/session";
+import { getAuth } from "@/lib/auth/auth";
 import { confirmEmail } from "@/lib/services/accounts";
 
 /**
@@ -23,8 +22,9 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/[lang]/verif
   }
 
   // Already logged in on this device as the same person: carry on into the site.
-  const sessionToken = request.cookies.get(SESSION_COOKIE)?.value;
-  const session = sessionToken ? await validateSessionToken(sessionToken) : null;
+  const session = await getAuth()
+    .api.getSession({ headers: request.headers, query: { disableRefresh: true } })
+    .catch(() => null);
   if (session?.user.id === user.id) {
     url.pathname = `/${locale}/${user.status === "approved" ? "feed" : "pending"}`;
   } else {

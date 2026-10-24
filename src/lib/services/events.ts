@@ -236,10 +236,17 @@ export async function createEvent(viewer: Viewer, input: EventInput): Promise<st
   return id;
 }
 
-/** For the edit form: the stored event, when the viewer may edit it. */
+/**
+ * For the edit form: the stored event, when the viewer may edit it. Moderators
+ * may edit other people's events only where they can see them, so a group
+ * event (with its private address) stays inside the group.
+ */
 export async function getEditableEvent(viewer: Viewer, id: string) {
   const [row] = await db.select().from(events).where(and(eq(events.id, id), isNull(events.removedAt))).limit(1);
-  if (!row || !(row.createdById === viewer.id || isModerator(viewer))) return null;
+  if (!row) return null;
+  if (row.createdById === viewer.id) return row;
+  if (!isModerator(viewer)) return null;
+  if (row.groupId && !(await isActiveGroupMember(viewer.id, row.groupId))) return null;
   return row;
 }
 

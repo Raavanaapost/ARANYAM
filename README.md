@@ -74,6 +74,7 @@ The demo accounts share a published password, so never add them to a real commun
 | ------------------------------------------- | --------------------------------------------------------------------------------- |
 | `APP_URL`                                   | The public address, used for links in emails                                      |
 | `DATABASE_URL`                              | PostgreSQL connection string                                                      |
+| `BETTER_AUTH_SECRET`                        | Signs login cookies and email links. Make one with `openssl rand -base64 32`      |
 | `SMTP_URL`, `SMTP_PASSWORD`, `EMAIL_FROM`   | How to send email, through any SMTP provider. `SMTP_PASSWORD` is optional         |
 | `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`        | Keeps forms working across restarts. Make one with `openssl rand -base64 32`      |
 | `TRUST_PROXY`                               | `true` behind a proxy or hosting platform, so rate limits see real addresses      |
@@ -86,7 +87,7 @@ The demo accounts share a published password, so never add them to a real commun
 
 `netlify.toml` holds the build settings. Because `@netlify/database` is installed, Netlify creates a PostgreSQL database for the site and applies `netlify/database/migrations` before each deploy goes live, so leave `DATABASE_URL` unset there.
 
-In the Netlify dashboard, under Project configuration > Environment variables, set `APP_URL`, `ADMIN_EMAILS`, `SMTP_URL` and `EMAIL_FROM`, plus `NETLIFY_NEXT_SKEW_PROTECTION=true` so open pages keep working while a new version goes live. Deploy, then register with the email in `ADMIN_EMAILS` to become the first admin.
+In the Netlify dashboard, under Project configuration > Environment variables, set `APP_URL`, `ADMIN_EMAILS`, `SMTP_URL`, `EMAIL_FROM` and `BETTER_AUTH_SECRET`, plus `NETLIFY_NEXT_SKEW_PROTECTION=true` so open pages keep working while a new version goes live. Deploy, then register with the email in `ADMIN_EMAILS` to become the first admin.
 
 To send email through Gmail, turn on 2-Step Verification for the Google account and create an app password at https://myaccount.google.com/apppasswords. Then set `SMTP_URL=smtps://you%40gmail.com@smtp.gmail.com:465`, `SMTP_PASSWORD` to the app password (spaces are fine) and `EMAIL_FROM="Aranyam <you@gmail.com>"`.
 
@@ -112,7 +113,7 @@ The browser tests need Chromium once: `npx playwright install chromium`. They bu
 - [Next.js 16](https://nextjs.org) with React 19, Server Components, Server Actions and TypeScript
 - PostgreSQL through [Drizzle ORM](https://orm.drizzle.team), or PGlite with no setup at all
 - Tailwind CSS 4, with the Tamil fonts Mukta Malar and Baloo Thambi 2 served from the site itself
-- Passwords hashed with scrypt, sessions kept in the database, and rate limits on login and sign-up
+- Sign-in by [Better Auth](https://www.better-auth.com), used only from the server: passwords hashed with scrypt, sessions kept in the database and checked on every page, signed cookies, and our own rate limits on login and sign-up. Invites, moderator approval and `ADMIN_EMAILS` are Aranyam's own rules, in `src/lib/services/accounts.ts`
 - Vitest and Playwright for tests
 
 ```
@@ -120,6 +121,7 @@ src/
   app/[lang]/(site)   public pages, login and sign-up
   app/[lang]/(app)    members' area: feed, blogs, news, events, groups, settings, moderation
   app/api             logout, calendar files, data export, health check
+  lib/auth            Better Auth setup, sessions for pages and actions, rate limits
   components          shared interface pieces
   i18n                Tamil and English text
   lib/services        every database query, with the privacy rules

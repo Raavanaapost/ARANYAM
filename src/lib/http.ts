@@ -16,8 +16,3 @@ export function isSameOrigin(request: NextRequest): boolean {
   }
   return request.headers.get("sec-fetch-site") === "same-origin";
 }
-
-export function isHttpsRequest(request: NextRequest): boolean {
-  const forwarded = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  return forwarded ? forwarded === "https" : request.nextUrl.protocol === "https:";
-}

@@ -1,4 +1,4 @@
-import { aliasedTable, and, asc, count, desc, eq, ilike, isNotNull, isNull, or, sql, type SQL } from "drizzle-orm";
+import { aliasedTable, and, asc, count, desc, eq, ilike, isNull, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { auditLogs, posts, users, type UserRole, type UserStatus } from "@/lib/db/schema";
 import { countOpenReports } from "./reports";
@@ -10,7 +10,7 @@ export async function getModerationStats() {
     db
       .select({ value: count() })
       .from(users)
-      .where(and(eq(users.status, "pending"), isNotNull(users.emailVerifiedAt))),
+      .where(and(eq(users.status, "pending"), eq(users.emailVerified, true))),
     countOpenReports(),
     db
       .select({ value: count() })
@@ -39,7 +39,7 @@ export type ModerationMember = {
   email: string;
   role: UserRole;
   status: UserStatus;
-  emailVerifiedAt: Date | null;
+  emailVerified: boolean;
   joinNote: string;
   location: string;
   avatarHue: number;
@@ -53,10 +53,10 @@ export async function listMembersForModeration(tab: MemberTab, query = ""): Prom
   const conditions: (SQL | undefined)[] = [];
   switch (tab) {
     case "waiting":
-      conditions.push(eq(users.status, "pending"), isNotNull(users.emailVerifiedAt));
+      conditions.push(eq(users.status, "pending"), eq(users.emailVerified, true));
       break;
     case "unverified":
-      conditions.push(isNull(users.emailVerifiedAt));
+      conditions.push(eq(users.emailVerified, false));
       break;
     case "suspended":
       conditions.push(eq(users.status, "suspended"));
@@ -77,7 +77,7 @@ export async function listMembersForModeration(tab: MemberTab, query = ""): Prom
       email: users.email,
       role: users.role,
       status: users.status,
-      emailVerifiedAt: users.emailVerifiedAt,
+      emailVerified: users.emailVerified,
       joinNote: users.joinNote,
       location: users.location,
       avatarHue: users.avatarHue,

@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { createDatabase, db, setDatabaseContext, type DatabaseContext } from "@/lib/db";
 import { runMigrations } from "@/lib/db/migrate";
-import { devEmails, users, type User } from "@/lib/db/schema";
+import { accounts, devEmails, users, type User } from "@/lib/db/schema";
+import { hashPassword } from "@/lib/auth/password";
 import { newId } from "@/lib/ids";
 import { viewerFromUser, type Viewer } from "@/lib/auth/viewer";
 
@@ -33,16 +34,22 @@ export async function addPerson(options: PersonOptions = {}): Promise<Viewer> {
     .values({
       id,
       email: `${id}@example.test`,
-      // Not a real hash: these accounts never log in with a password.
-      passwordHash: "test",
       displayName: options.name ?? `Member ${id.slice(0, 4)}`,
       role: options.role ?? "member",
       status: options.status ?? "approved",
-      emailVerifiedAt: options.verified === false ? null : new Date(),
+      emailVerified: options.verified !== false,
       approvedAt: (options.status ?? "approved") === "approved" ? new Date() : null,
     })
     .returning();
   return viewerFromUser(user, `session-${id}`);
+}
+
+/** Gives an account a password, stored the way Better Auth stores it. */
+export async function setPassword(userId: string, password: string) {
+  await db
+    .insert(accounts)
+    .values({ id: userId, accountId: userId, providerId: "credential", userId, password: await hashPassword(password) })
+    .onConflictDoUpdate({ target: accounts.id, set: { password: await hashPassword(password) } });
 }
 
 /** Reloads a viewer after their account changed (for example after approval). */

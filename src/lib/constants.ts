@@ -6,7 +6,6 @@
 export const USER_ROLES = ["member", "moderator", "admin"] as const;
 export const USER_STATUSES = ["pending", "approved", "suspended"] as const;
 export const LOCALES = ["en", "ta"] as const;
-export const AUTH_TOKEN_PURPOSES = ["verify_email", "reset_password"] as const;
 export const GROUP_PRIVACY = ["open", "private", "hidden"] as const;
 export const GROUP_ROLES = ["owner", "admin", "member"] as const;
 export const GROUP_MEMBER_STATUSES = ["active", "pending"] as const;

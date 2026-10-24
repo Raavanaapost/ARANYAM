@@ -1,24 +1,24 @@
 "use server";
 
+import { APIError } from "better-auth/api";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import { clearSessionCookie, getRequestMeta, readSessionCookie, setSessionCookie } from "@/lib/auth/cookies";
+import { authInternals, getAuth } from "@/lib/auth/auth";
+import { clearSessionCookie, getRequestMeta } from "@/lib/auth/cookies";
 import { getViewer } from "@/lib/auth/dal";
 import { safeNextPath } from "@/lib/params";
 import { checkPasswordStrength, PASSWORD_MAX_LENGTH } from "@/lib/auth/password";
 import { hitRateLimit, RATE_LIMITS, resetRateLimit } from "@/lib/auth/rate-limit";
-import { createSession, invalidateSessionToken } from "@/lib/auth/session";
 import type { FormState } from "@/lib/form-state";
 import {
-  authenticate,
   findUserById,
   findUserByResetToken,
-  findUsableInvite,
   normalizeEmail,
   registerAccount,
   requestPasswordReset,
-  resetPasswordWithToken,
   sendVerificationEmail,
+  resetPasswordWithToken,
 } from "@/lib/services/accounts";
 import { actionLocale, checked, invalid, isEmail, passwordMessage, rawText, text } from "./helpers";
 
@@ -38,7 +38,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
   );
   if (errors) return errors;
 
-  const { ip, userAgent } = await getRequestMeta();
+  const { ip } = await getRequestMeta();
   const [perEmail, perIp] = await Promise.all([
     hitRateLimit(RATE_LIMITS.loginPerEmail, email),
     hitRateLimit(RATE_LIMITS.loginPerIp, ip),
@@ -46,20 +46,34 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
   if (!perEmail.allowed || !perIp.allowed) {
     return { status: "error", message: t.common.rateLimited, values };
   }
-
   // No account can have a longer password, so skip the expensive check.
-  const user = password.length <= PASSWORD_MAX_LENGTH ? await authenticate(email, password) : null;
-  if (!user) return { status: "error", message: t.auth.login.invalid, values };
-  if (user.status === "suspended") return { status: "error", message: t.auth.login.suspended, values };
+  if (password.length > PASSWORD_MAX_LENGTH) return { status: "error", message: t.auth.login.invalid, values };
+
+  const requestHeaders = await headers();
+  const auth = getAuth();
+  // Replace any earlier session in this browser rather than leaving it behind.
+  const previous = await auth.api.getSession({ headers: requestHeaders, query: { disableRefresh: true } }).catch(() => null);
+
+  let userId: string;
+  try {
+    // Sets the session cookie through Better Auth's Next.js cookie plugin.
+    const result = await auth.api.signInEmail({ body: { email, password, rememberMe: true }, headers: requestHeaders });
+    userId = result.user.id;
+  } catch (error) {
+    if (!(error instanceof APIError)) throw error;
+    // The password was right, but the account may not start a session:
+    // Aranyam's session hook refuses paused (suspended) accounts.
+    if (error.body?.code === "FAILED_TO_CREATE_SESSION") {
+      return { status: "error", message: t.auth.login.suspended, values };
+    }
+    return { status: "error", message: t.auth.login.invalid, values };
+  }
 
   await resetRateLimit(RATE_LIMITS.loginPerEmail, email);
-  // Replace any earlier session in this browser rather than leaving it behind.
-  const previous = await readSessionCookie();
-  if (previous) await invalidateSessionToken(previous);
-  const session = await createSession(user.id, userAgent);
-  await setSessionCookie(session.token, session.expiresAt);
+  if (previous) await (await authInternals()).deleteSession(previous.session.token);
 
-  if (!user.emailVerifiedAt) redirect(`/${locale}/verify-email`);
+  const user = await findUserById(userId);
+  if (!user?.emailVerified) redirect(`/${locale}/verify-email`);
   if (user.status !== "approved") redirect(`/${locale}/pending`);
   redirect(`/${locale}${next ?? "/feed"}`);
 }
@@ -91,15 +105,7 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
   const limit = await hitRateLimit(RATE_LIMITS.registerPerIp, ip);
   if (!limit.allowed) return { status: "error", message: t.common.rateLimited, values };
 
-  const invite = inviteCode ? await findUsableInvite(inviteCode) : null;
-  await registerAccount({
-    displayName,
-    email,
-    password,
-    joinNote,
-    locale,
-    inviteCode: invite ? inviteCode : undefined,
-  });
+  await registerAccount({ displayName, email, password, joinNote, locale, inviteCode: inviteCode || undefined });
   // The same answer whether or not the email already had an account.
   return { status: "success", data: { email } };
 }

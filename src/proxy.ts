@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { LOCALE_COOKIE, defaultLocale, isLocale, matchAcceptLanguage } from "@/i18n/config";
-import { SESSION_COOKIE, SESSION_DURATION_MS } from "@/lib/auth/constants";
+import { SESSION_COOKIE_NAMES, SESSION_DURATION_MS } from "@/lib/auth/constants";
 
 /**
  * Pages anyone may open. Everything else needs a session cookie, so a new
@@ -29,9 +29,13 @@ function preferredLocale(request: NextRequest) {
   return matchAcceptLanguage(request.headers.get("accept-language")) ?? defaultLocale;
 }
 
-function isHttps(request: NextRequest): boolean {
-  const forwarded = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  return forwarded ? forwarded === "https" : request.nextUrl.protocol === "https:";
+/** Better Auth's session cookie, under whichever name this site uses. */
+function sessionCookie(request: NextRequest) {
+  for (const name of SESSION_COOKIE_NAMES) {
+    const value = request.cookies.get(name)?.value;
+    if (value) return { name, value };
+  }
+  return null;
 }
 
 export function proxy(request: NextRequest) {
@@ -49,7 +53,7 @@ export function proxy(request: NextRequest) {
 
   const locale = segments[1];
   const path = `/${segments.slice(2).join("/")}`.replace(/\/+$/, "") || "/";
-  const session = request.cookies.get(SESSION_COOKIE)?.value;
+  const session = sessionCookie(request);
 
   if (isRead && !session && !isPublicPath(path)) {
     const url = request.nextUrl.clone();
@@ -72,12 +76,13 @@ export function proxy(request: NextRequest) {
   }
 
   // Keep active members signed in: each visit pushes the cookie expiry forward.
-  // The database session is extended separately when it is validated.
+  // Better Auth extends the database session separately (once a day), and
+  // pages cannot set cookies themselves. The value is unchanged and signed.
   if (isRead && session) {
-    response.cookies.set(SESSION_COOKIE, session, {
+    response.cookies.set(session.name, session.value, {
       httpOnly: true,
       sameSite: "lax",
-      secure: isHttps(request),
+      secure: session.name.startsWith("__Secure-"),
       path: "/",
       maxAge: SESSION_DURATION_MS / 1000,
     });

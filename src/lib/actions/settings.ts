@@ -1,15 +1,15 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { locales } from "@/i18n/config";
 import { clearSessionCookie } from "@/lib/auth/cookies";
 import { getViewer } from "@/lib/auth/dal";
 import { checkPasswordStrength } from "@/lib/auth/password";
 import { hitRateLimit, RATE_LIMITS } from "@/lib/auth/rate-limit";
-import { invalidateOtherSessions } from "@/lib/auth/session";
 import type { FormState } from "@/lib/form-state";
-import { changePassword, deleteAccount, updateProfile } from "@/lib/services/accounts";
+import { changePassword, deleteAccount, signOutOtherDevices, updateProfile } from "@/lib/services/accounts";
 import { createInvite, inviteUrl, revokeInvite } from "@/lib/services/invites";
 import { markAllRead } from "@/lib/services/notifications";
 import { memberForAction } from "./guard";
@@ -57,17 +57,17 @@ export async function changePasswordAction(_prev: FormState, formData: FormData)
 
   const issue = checkPasswordStrength(next, viewer.email);
   if (issue) return { status: "error", fieldErrors: { newPassword: passwordMessage(t, issue) } };
-  if (!current || !(await changePassword(viewer.id, current, next))) {
+  // Better Auth signs out every other device and gives this browser a new session.
+  if (!current || !(await changePassword(await headers(), current, next))) {
     return { status: "error", fieldErrors: { currentPassword: t.auth.errors.wrongPassword } };
   }
-  await invalidateOtherSessions(viewer.id, viewer.sessionId);
   return { status: "success", message: t.settings.passwordChanged };
 }
 
 export async function signOutOtherSessionsAction(formData: FormData) {
   const { locale } = actionLocale(formData);
   const viewer = await userForAction(locale);
-  await invalidateOtherSessions(viewer.id, viewer.sessionId);
+  await signOutOtherDevices(viewer.id, viewer.sessionId);
   refresh();
 }
 

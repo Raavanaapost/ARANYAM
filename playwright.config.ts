@@ -23,6 +23,8 @@ const serverEnv = {
   DANGEROUSLY_ALLOW_DEV_MAILBOX: "true",
   SMTP_URL: "",
   TRUST_PROXY: "false",
+  // Signs session cookies in this test server only.
+  BETTER_AUTH_SECRET: "e2e-only-secret-6f1c0b9a4e2d47c8a3b5f7e9d1c2b4a6",
 };
 
 const prepare = "npm run db:migrate && npm run db:seed -- --reset";

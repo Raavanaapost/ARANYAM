@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/misc";
 import { getI18n } from "@/i18n/server";
 import { signOutOtherSessionsAction } from "@/lib/actions/settings";
 import { requireUser } from "@/lib/auth/dal";
-import { listActiveSessions } from "@/lib/auth/session";
+import { listActiveSessions } from "@/lib/services/accounts";
 import { describeDevice } from "@/lib/user-agent";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -62,7 +62,7 @@ async function Account() {
                 <MonitorSmartphone className="mt-0.5 size-5 shrink-0 text-muted" aria-hidden="true" />
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-ink">
-                    {describeDevice(session.userAgent) ?? t.settings.unknownDevice}{" "}
+                    {describeDevice(session.userAgent ?? "") ?? t.settings.unknownDevice}{" "}
                     {session.id === viewer.sessionId ? <Badge tone="primary">{t.settings.thisDevice}</Badge> : null}
                   </p>
                   <p className="text-sm text-muted">

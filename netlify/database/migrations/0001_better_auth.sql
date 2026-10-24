@@ -1,0 +1,49 @@
+CREATE TABLE "accounts" (
+	"id" text PRIMARY KEY NOT NULL,
+	"account_id" text NOT NULL,
+	"provider_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	"access_token" text,
+	"refresh_token" text,
+	"id_token" text,
+	"access_token_expires_at" timestamp with time zone,
+	"refresh_token_expires_at" timestamp with time zone,
+	"scope" text,
+	"password" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "verifications" (
+	"id" text PRIMARY KEY NOT NULL,
+	"identifier" text NOT NULL,
+	"value" text NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "auth_tokens" DISABLE ROW LEVEL SECURITY;--> statement-breakpoint
+DROP TABLE "auth_tokens" CASCADE;--> statement-breakpoint
+ALTER TABLE "sessions" ALTER COLUMN "user_agent" DROP DEFAULT;--> statement-breakpoint
+ALTER TABLE "sessions" ALTER COLUMN "user_agent" DROP NOT NULL;--> statement-breakpoint
+-- Sign-in moves to Better Auth. Old sessions cannot be carried over, so everyone logs in once more.
+DELETE FROM "sessions";--> statement-breakpoint
+ALTER TABLE "sessions" ADD COLUMN "token" text NOT NULL;--> statement-breakpoint
+ALTER TABLE "sessions" ADD COLUMN "ip_address" text;--> statement-breakpoint
+ALTER TABLE "sessions" ADD COLUMN "updated_at" timestamp with time zone DEFAULT now() NOT NULL;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "email_verified" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "image" text;--> statement-breakpoint
+ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "accounts_user_idx" ON "accounts" USING btree ("user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "accounts_provider_key" ON "accounts" USING btree ("provider_id","account_id");--> statement-breakpoint
+CREATE INDEX "verifications_identifier_idx" ON "verifications" USING btree ("identifier");--> statement-breakpoint
+CREATE UNIQUE INDEX "sessions_token_key" ON "sessions" USING btree ("token");--> statement-breakpoint
+-- Keep every account: confirmed emails stay confirmed, and passwords move to
+-- "accounts" unchanged (the same scrypt hashes, still checked the same way).
+UPDATE "users" SET "email_verified" = ("email_verified_at" IS NOT NULL);--> statement-breakpoint
+INSERT INTO "accounts" ("id", "account_id", "provider_id", "user_id", "password", "created_at", "updated_at")
+SELECT "id", "id", 'credential', "id", "password_hash", "created_at", now() FROM "users";--> statement-breakpoint
+ALTER TABLE "sessions" DROP COLUMN "last_used_at";--> statement-breakpoint
+ALTER TABLE "users" DROP COLUMN "email_verified_at";--> statement-breakpoint
+ALTER TABLE "users" DROP COLUMN "password_hash";

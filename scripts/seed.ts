@@ -4,6 +4,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { getDatabaseContext } from "@/lib/db";
 import { runMigrations } from "@/lib/db/migrate";
 import {
+  accounts,
   articleReactions,
   articles,
   auditLogs,
@@ -61,7 +62,7 @@ if (reset) {
   await db.execute(
     sql.raw(
       `TRUNCATE TABLE audit_logs, reports, notifications, article_reactions, post_reactions, comments,
-       event_rsvps, events, articles, posts, group_members, groups, auth_tokens, sessions, rate_limits,
+       event_rsvps, events, articles, posts, group_members, groups, accounts, verifications, sessions, rate_limits,
        dev_emails, users, invites RESTART IDENTITY CASCADE`,
     ),
   );
@@ -186,8 +187,7 @@ await db.insert(users).values(
     return {
       id: id[person.key],
       email: `${person.key}@aranyam.local`,
-      emailVerifiedAt: person.verified === false ? null : joined,
-      passwordHash,
+      emailVerified: person.verified !== false,
       displayName: person.name,
       bio: person.bio ?? "",
       location: person.location ?? "",
@@ -202,6 +202,16 @@ await db.insert(users).values(
       updatedAt: joined,
     };
   }),
+);
+// Passwords live in Better Auth's accounts table, as a "credential" account.
+await db.insert(accounts).values(
+  people.map((person) => ({
+    id: id[person.key],
+    accountId: id[person.key],
+    providerId: "credential",
+    userId: id[person.key],
+    password: passwordHash,
+  })),
 );
 
 /* --------------------------------- Groups -------------------------------- */

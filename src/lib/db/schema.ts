@@ -16,7 +16,6 @@ import {
   USER_ROLES,
   USER_STATUSES,
   LOCALES,
-  AUTH_TOKEN_PURPOSES,
   GROUP_PRIVACY,
   GROUP_ROLES,
   GROUP_MEMBER_STATUSES,
@@ -45,8 +44,9 @@ export const users = pgTable(
   {
     id: text("id").primaryKey(),
     email: text("email").notNull(),
-    emailVerifiedAt: ts("email_verified_at"),
-    passwordHash: text("password_hash").notNull(),
+    emailVerified: boolean("email_verified").notNull().default(false),
+    // Required by Better Auth's user model. Always empty: no photos, by design.
+    image: text("image"),
     displayName: text("display_name").notNull(),
     bio: text("bio").notNull().default(""),
     location: text("location").notNull().default(""),
@@ -79,35 +79,70 @@ export const users = pgTable(
   ],
 );
 
+/*
+ * Sign-in tables, in the shape Better Auth expects (see src/lib/auth/auth.ts).
+ * Passwords live in `accounts` (provider "credential"), not on `users`.
+ */
 export const sessions = pgTable(
   "sessions",
   {
-    // SHA-256 of the cookie token, so a database leak cannot be replayed.
     id: text("id").primaryKey(),
+    // The cookie carries this token plus a signature made with the auth secret,
+    // so the token alone (e.g. from a database copy) cannot be used to log in.
+    token: text("token").notNull(),
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     expiresAt: ts("expires_at").notNull(),
-    userAgent: text("user_agent").notNull().default(""),
+    // Never filled in: IP tracking is turned off for members' privacy.
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
     createdAt: createdAt(),
-    lastUsedAt: ts("last_used_at").notNull().defaultNow(),
+    // Moves forward when the session is extended, so it doubles as "last active".
+    updatedAt: updatedAt(),
   },
-  (t) => [index("sessions_user_idx").on(t.userId)],
+  (t) => [uniqueIndex("sessions_token_key").on(t.token), index("sessions_user_idx").on(t.userId)],
 );
 
-
-export const authTokens = pgTable(
-  "auth_tokens",
+export const accounts = pgTable(
+  "accounts",
   {
     id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    purpose: text("purpose", { enum: AUTH_TOKEN_PURPOSES }).notNull(),
+    // Unused (no social logins), but part of Better Auth's account model.
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: ts("access_token_expires_at"),
+    refreshTokenExpiresAt: ts("refresh_token_expires_at"),
+    scope: text("scope"),
+    // scrypt hash, see src/lib/auth/password.ts.
+    password: text("password"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index("accounts_user_idx").on(t.userId),
+    uniqueIndex("accounts_provider_key").on(t.providerId, t.accountId),
+  ],
+);
+
+/** Password reset links. Identifiers are stored hashed. */
+export const verifications = pgTable(
+  "verifications",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
     expiresAt: ts("expires_at").notNull(),
     createdAt: createdAt(),
+    updatedAt: updatedAt(),
   },
-  (t) => [index("auth_tokens_user_idx").on(t.userId, t.purpose)],
+  (t) => [index("verifications_identifier_idx").on(t.identifier)],
 );
 
 export const rateLimits = pgTable("rate_limits", {

@@ -76,6 +76,10 @@ export const env = {
     if (this.emailTransport !== "dev") return false;
     return !this.isProduction || flag("DANGEROUSLY_ALLOW_DEV_MAILBOX", false);
   },
+  /** Running on Netlify, which provides the database and the visitor's address. */
+  get isNetlify() {
+    return Boolean(process.env.NETLIFY_DB_URL) || process.env.NETLIFY === "true";
+  },
   /** Trust X-Forwarded-For for rate limiting (true behind a reverse proxy). */
   get trustProxy() {
     return flag("TRUST_PROXY", true);

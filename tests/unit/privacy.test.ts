@@ -3,7 +3,7 @@ import type { DatabaseContext } from "@/lib/db";
 import type { Viewer } from "@/lib/auth/viewer";
 import { createArticle, getArticle, listArticles, listPublicNews } from "@/lib/services/articles";
 import { addComment, listComments } from "@/lib/services/comments";
-import { createEvent, getEvent, setRsvp, type EventInput } from "@/lib/services/events";
+import { createEvent, getEditableEvent, getEvent, setRsvp, updateEvent, type EventInput } from "@/lib/services/events";
 import { createGroup, getGroup, joinGroup, listDiscoverGroups, type GroupInput } from "@/lib/services/groups";
 import { getMemberProfile } from "@/lib/services/members";
 import { listNotifications } from "@/lib/services/notifications";
@@ -167,6 +167,15 @@ describe("events", () => {
     const id = (await createEvent(priya, event({ mode: "online", venue: "", onlineUrl: "https://meet.example/abc" })))!;
     expect((await getEvent(arun, id))?.onlineUrl).toBe("");
     expect((await getEvent(priya, id))?.onlineUrl).toBe("https://meet.example/abc");
+  });
+
+  it("keeps a group event's address inside the group, even from moderators", async () => {
+    const groupId = (await createGroup(priya, group("hidden", "Mums' evening")))!;
+    const id = (await createEvent(priya, event({ groupId, venue: "Priya's home" })))!;
+    expect(await getEvent(meena, id)).toBeNull();
+    expect(await getEditableEvent(meena, id)).toBeNull();
+    expect(await updateEvent(meena, id, { ...event(), venue: "Changed" })).toBe(false);
+    expect((await getEditableEvent(priya, id))?.venue).toBe("Priya's home");
   });
 
   it("respects the number of places", async () => {
